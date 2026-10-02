@@ -66,7 +66,7 @@ Der optionale Patch **Clone ChatGPT (experimental baseline)** allein dient nur d
 
 ## Lokal bauen
 
-Java 21 und bestehende GitHub-Packages-Leseberechtigung gemäß [Morphe-Dokumentation](https://github.com/MorpheApp/morphe-documentation) verwenden. Zugangsdaten nur im Benutzerprofil oder Prozess, nie im Repository speichern.
+Für die aktuellen experimentellen Patches den `dev`-Zweig auschecken (`git checkout dev`); `main` ist noch kein veröffentlichter Stable-Stand. Java 21 und bestehende GitHub-Packages-Leseberechtigung gemäß [Morphe-Dokumentation](https://github.com/MorpheApp/morphe-documentation) verwenden. Zugangsdaten nur im Benutzerprofil oder Prozess, nie im Repository speichern.
 
 ```sh
 ./gradlew :patches:test :patches:buildAndroid
