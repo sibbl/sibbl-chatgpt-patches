@@ -33,7 +33,7 @@ Beide Apps beanspruchen weiterhin den ursprünglichen Login-Callback. Wenn Andro
 Der optionale Patch **Clone ChatGPT (experimental baseline)** allein dient nur dem Vergleich und enthält den Callback-Fix nicht.
 
 <!-- PATCHES_START -->
-> **[v1.0.0-dev.1](https://github.com/sibbl/sibbl-chatgpt-patches/releases/tag/v1.0.0-dev.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
+> **[v1.0.0-dev.2](https://github.com/sibbl/sibbl-chatgpt-patches/releases/tag/v1.0.0-dev.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
 <details open>
 <summary>📦 ChatGPT&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>

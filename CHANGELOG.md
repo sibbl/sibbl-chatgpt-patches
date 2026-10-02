@@ -1,3 +1,9 @@
+## [1.0.0-dev.2](https://github.com/sibbl/sibbl-chatgpt-patches/compare/v1.0.0-dev.1...v1.0.0-dev.2) (2026-10-02)
+
+### 🐛 Bug Fixes
+
+* publish only the matching experimental patch bundle ([dfb46d5](https://github.com/sibbl/sibbl-chatgpt-patches/commit/dfb46d5948ef3f5fd0334f3eb599645e303890a5))
+
 ## 1.0.0-dev.1 (2026-10-02)
 
 ### ✨ New Features
