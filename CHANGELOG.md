@@ -1,3 +1,9 @@
+## [1.0.0-dev.7](https://github.com/sibbl/sibbl-chatgpt-patches/compare/v1.0.0-dev.6...v1.0.0-dev.7) (2026-10-02)
+
+### 🐛 Bug Fixes
+
+* preserve native status tracing across coroutine resumption ([841ff7c](https://github.com/sibbl/sibbl-chatgpt-patches/commit/841ff7ca9be08df6cbfabac58c2cbcf949525ac2))
+
 ## [1.0.0-dev.6](https://github.com/sibbl/sibbl-chatgpt-patches/compare/v1.0.0-dev.5...v1.0.0-dev.6) (2026-10-02)
 
 ### ✨ New Features

@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-10-02T18:02:00",
-  "description": "## [1.0.0-dev.6](https://github.com/sibbl/sibbl-chatgpt-patches/compare/v1.0.0-dev.5...v1.0.0-dev.6) (2026-10-02)\n\n### ✨ New Features\n\n* trace native transport status and bounded response categories ([4a1ea18](https://github.com/sibbl/sibbl-chatgpt-patches/commit/4a1ea18375a3714c4e198f9700f352f12b453f05))",
-  "download_url": "https://github.com/sibbl/sibbl-chatgpt-patches/releases/download/v1.0.0-dev.6/patches-1.0.0-dev.6.mpp",
+  "created_at": "2026-10-02T18:13:27",
+  "description": "## [1.0.0-dev.7](https://github.com/sibbl/sibbl-chatgpt-patches/compare/v1.0.0-dev.6...v1.0.0-dev.7) (2026-10-02)\n\n### 🐛 Bug Fixes\n\n* preserve native status tracing across coroutine resumption ([841ff7c](https://github.com/sibbl/sibbl-chatgpt-patches/commit/841ff7ca9be08df6cbfabac58c2cbcf949525ac2))",
+  "download_url": "https://github.com/sibbl/sibbl-chatgpt-patches/releases/download/v1.0.0-dev.7/patches-1.0.0-dev.7.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.6"
+  "version": "1.0.0-dev.7"
 }
