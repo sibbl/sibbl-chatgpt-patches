@@ -1,3 +1,9 @@
+## [1.0.0-dev.4](https://github.com/sibbl/sibbl-chatgpt-patches/compare/v1.0.0-dev.3...v1.0.0-dev.4) (2026-10-02)
+
+### ✨ New Features
+
+* customize clone app name and use original package suffix ([6efc37c](https://github.com/sibbl/sibbl-chatgpt-patches/commit/6efc37c329f28bd317c3e234c9f58bfabb966a51))
+
 ## [1.0.0-dev.3](https://github.com/sibbl/sibbl-chatgpt-patches/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2026-10-02)
 
 ### 🐛 Bug Fixes

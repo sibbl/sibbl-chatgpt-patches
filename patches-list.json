@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0-dev.3",
+  "version": "1.0.0-dev.4",
   "patches": [
     {
       "name": "Clone ChatGPT (experimental baseline)",
@@ -39,7 +39,16 @@
           "description": "Unique package for the private-account clone.",
           "required": true,
           "type": "kotlin.String",
-          "default": "app.sibbl.chatgpt.private",
+          "default": "com.openai.chatgpt.clone",
+          "values": null
+        },
+        {
+          "key": "appName",
+          "title": "App name",
+          "description": "Application and launcher name. Unicode and punctuation are supported.",
+          "required": true,
+          "type": "kotlin.String",
+          "default": "ChatGPT clone",
           "values": null
         },
         {
