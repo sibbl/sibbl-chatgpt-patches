@@ -2,24 +2,29 @@
 
 Experimentelle Patches für **Morphe**, um eine zweite ChatGPT-App mit getrennten Appdaten zu testen. Unabhängiges Projekt von sibbl, nicht von OpenAI oder Morphe.
 
-**Status: statisch geprüfter Callback-Fix, noch kein bestätigter Geräte-Login.** Der Patch bewahrt die ursprüngliche OAuth-Redirect-URI. Er deaktiviert weder PKCE/state/nonce noch Play Integrity, Signaturprüfungen oder TLS. Eine mögliche serverseitige Ablehnung wird nicht umgangen.
+**Status: statisch geprüfter Callback-Fix, noch kein bestätigter Geräte-Login.** Der Nutzer bestätigt inzwischen einen erfolgreichen Patchbuild, beim Login erscheint aber „Incorrect email address or password“. Die Ursache ist offen. Der Patch bewahrt die ursprüngliche OAuth-Redirect-URI. Er deaktiviert weder PKCE/state/nonce noch Play Integrity, Signaturprüfungen oder TLS. Eine mögliche serverseitige Ablehnung wird nicht umgangen.
 
 ## In Morphe testen
 
-Nach dem ersten erfolgreichen **Prerelease** dieses Repositories:
+Die Quelle enthält ausschließlich experimentelle Prereleases. Für den Erstimport unter **Sources → + → Remote** diese Metadaten-URL eintragen und als Namen **sibbl ChatGPT patches** verwenden:
 
-1. [Patchquelle hinzufügen](https://morphe.software/add-source?github=sibbl/sibbl-chatgpt-patches) oder `https://github.com/sibbl/sibbl-chatgpt-patches` als GitHub-Quelle eintragen.
-2. Für diese Quelle **Pre-release patches** und **Experimental app versions** aktivieren und die Quelle aktualisieren. Bei Bedarf Expert-Modus verwenden (beide Patches sind standardmäßig abgewählt).
-3. Original **ChatGPT 1.2026.265 (2626541)** als APKM auswählen. Das untersuchte Universal-Bundle benötigt Android 12L/API 32 oder neuer. Morphe wählt/vereinigt passende Splits; eine isolierte `base.apk` ist keine vollständige Installationsdatei.
+`https://raw.githubusercontent.com/sibbl/sibbl-chatgpt-patches/refs/heads/dev/patches-bundle.json`
+
+1. Die oben genannte Remote-Quelle hinzufügen. Sie bleibt ausdrücklich auf dem experimentellen `dev`-Zweig.
+2. **Experimental app versions** aktivieren und die Quelle aktualisieren. Die direkte `dev`-Quelle braucht keinen Prerelease-Umschalter. Bei Bedarf Expert-Modus verwenden (beide Patches sind standardmäßig abgewählt).
+3. Die heruntergeladene Original-APKM **ChatGPT 1.2026.265 (versionCode 2626541)** über die Dateiauswahl auswählen — eine neuere installierte ChatGPT-App ist kein unterstützter Eingang. [Passenden Download auf APKMirror öffnen](https://www.apkmirror.com/apk/openai/chatgpt/chatgpt-1-2026-265-release/chatgpt-1-2026-265-7-android-apk-download/). Auch andere Varianten mit demselben Versionsnamen, etwa Code 2626526 oder 2626527, sind nicht freigegeben. Das untersuchte Universal-Bundle benötigt Android 12L/API 32 oder neuer. Morphe wählt/vereinigt passende Splits; eine isolierte `base.apk` ist keine vollständige Installationsdatei.
 4. **Preserve ChatGPT login callback (experimental)** wählen. Dessen Abhängigkeit enthält die Clone-Basis. Den universellen **Clone app**-Patch nicht zusätzlich wählen.
-5. Paketname standardmäßig `app.sibbl.chatgpt.private`. **Update permissions = true** und **Update providers = true** sind Pflicht und standardmäßig aktiviert; Abschalten führt zum Abbruch.
-6. APK in Morphe bauen und selbst auf dem Gerät testen. Ein vorhandener Klon unter einem anderen Namen wird dadurch nicht aktualisiert. Original `com.openai.chatgpt` und seine Daten werden nicht ersetzt.
+5. **Package name** standardmäßig `com.openai.chatgpt.clone` (Originalpaket + `.clone`), frei konfigurierbar. **App name** standardmäßig `ChatGPT clone`, frei konfigurierbar inklusive Unicode und Sonderzeichen; leere Namen oder ungültige Unicode-/XML-Zeichen führen zum Abbruch. **Update permissions = true** und **Update providers = true** sind Pflicht und standardmäßig aktiviert; Abschalten führt zum Abbruch.
+6. APK in Morphe bauen und selbst auf dem Gerät testen. Ein vorhandener Klon unter einem anderen Paketnamen wird dadurch nicht aktualisiert. Insbesondere ist der neue Default eine separate Installation neben einem bisherigen `app.sibbl.chatgpt.private`-Klon; es erfolgt keine automatische Deinstallation. Original `com.openai.chatgpt` und seine Daten werden nicht ersetzt.
+
+Alternativ die `.mpp` vom neuesten [Prerelease](https://github.com/sibbl/sibbl-chatgpt-patches/releases) als lokale Quelle importieren. Der reguläre [GitHub-Add-source-Link mit Quellennamen](https://morphe.software/add-source?github=sibbl/sibbl-chatgpt-patches&name=sibbl%20ChatGPT%20patches) verwendet den separaten **Pre-release patches**-Schalter: Ohne ihn lädt Morphe `main`, wo noch kein Stable-Release verfügbar ist. Der direkte `refs/heads/dev`-Link verhindert diese Umschaltung und eignet sich deshalb für den Erstimport. Die GitHub-Repository-Beschreibung ist vorhanden; Morphe bezieht den Bundle-Namen aus dem `.mpp`-Manifest. Ohne Geräteansicht ist die konkrete Ursache einer unvollständigen Anzeige noch nicht bestätigt.
 
 Beide Apps beanspruchen weiterhin den ursprünglichen Login-Callback. Wenn Android eine Appauswahl zeigt, den **Klon** wählen. Callback-Routing, Browser/Auth Tab, Integritätsprüfung und vollständiger Login sind noch auf dem Gerät zu prüfen. Bitte nur Fehlerphase (vor Browser / im Browser / nach Rückkehr), Android-/Browser-Version und Fehlermeldung melden — keine Auth-URLs mit Parametern, Tokens oder Rohlogs veröffentlichen.
 
 ## Was geändert wird
 
 - Clone-Manifestlogik auf Basis des offiziellen **Clone app** aus Morphe Patches **v1.45.0**.
+- Anwendungs- und Launcher-Namen einschließlich Launcher-Aliases werden auf eine eigene String-Ressource gesetzt. Explizite Komponentenlabels, die den ursprünglichen Appnamen verwenden, folgen ebenfalls dem gewählten Namen; andere Funktionsbezeichnungen bleiben erhalten.
 - Custom Permissions und installierte Provider-Authorities werden getrennt benannt. Referenzen an geschützten Komponenten werden ebenfalls angepasst; fremde Provider unter `<queries>` bleiben unverändert.
 - Genau zwei Rückgabewerte von `getPackageName()` im analysierten OAuth-Konfigurationsaufbau werden durch `com.openai.chatgpt` ersetzt. Ein dritter Aufruf für die tatsächliche Appidentität bleibt dynamisch.
 - Exakte Versions- und Bytecode-Guards brechen bei abweichendem Eingang ab.
@@ -27,7 +32,24 @@ Beide Apps beanspruchen weiterhin den ursprünglichen Login-Callback. Wenn Andro
 Der optionale Patch **Clone ChatGPT (experimental baseline)** allein dient nur dem Vergleich und enthält den Callback-Fix nicht.
 
 <!-- PATCHES_START -->
-Die automatisch erzeugte Patchliste erscheint beim ersten Release.
+> **[v1.0.0-dev.4](https://github.com/sibbl/sibbl-chatgpt-patches/releases/tag/v1.0.0-dev.4)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
+<details open>
+<summary>📦 ChatGPT&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
+<br>
+
+**🎯 Supported versions:**
+
+| 🧪&nbsp;1.2026.265 |
+| :---: |
+| Only versionCode 2626541. Download APKM: https://www.apkmirror.com/apk/openai/chatgpt/chatgpt-1-2026-265-release/chatgpt-1-2026-265-7-android-apk-download/ APK statically tested; installation and login remain unverified. |
+
+| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
+|----------|----------------|-----------|
+| [Clone ChatGPT (experimental baseline)](#clone-chatgpt-experimental-baseline) | Separate package with mandatory permission and provider renaming. Authentication is unresolved: this patch does not fix invalid auth request. Do not combine with the universal Clone app patch. | • Package name<br>• App name<br>• Update permissions<br>• Update providers |
+| [Preserve ChatGPT login callback (experimental)](#preserve-chatgpt-login-callback-experimental) | Keeps the original OAuth redirect URI when cloning. Includes the clone baseline. Static APK tests only: login and server acceptance are unverified; callback selection may still be needed. |  |
+
+</details>
+
 <!-- PATCHES_END -->
 
 ## Unterstützter Analyse- und Teststand
@@ -38,13 +60,13 @@ Die automatisch erzeugte Patchliste erscheint beim ersten Release.
 | Morphe Manager | 1.33.0 als aktueller Stable-Stand geprüft |
 | Offizielle Patches / Patcher / Buildplugin | 1.45.0 / 1.15.0 / 1.3.4 |
 | Tests | Synthetische Manifesttests und lokaler statischer APK-Integrationstest |
-| Gerät / Login | Nicht installiert, nicht gestartet, Login nicht bestätigt |
+| Gerät / Login | Nutzer bestätigt Patchbuild; meldet „Incorrect email address or password“. Login weiterhin unbestätigt. Entwicklung hat keine App installiert/gestartet. |
 
 [Analyse und Belegstellen](docs/auth-analysis.md) · [Herkunft und Prüfsummen](docs/provenance.md) · [Build und Veröffentlichung](docs/development.md)
 
 ## Lokal bauen
 
-Java 21 und bestehende GitHub-Packages-Leseberechtigung gemäß [Morphe-Dokumentation](https://github.com/MorpheApp/morphe-documentation) verwenden. Zugangsdaten nur im Benutzerprofil oder Prozess, nie im Repository speichern.
+Für die aktuellen experimentellen Patches den `dev`-Zweig auschecken (`git checkout dev`); `main` ist noch kein veröffentlichter Stable-Stand. Java 21 und bestehende GitHub-Packages-Leseberechtigung gemäß [Morphe-Dokumentation](https://github.com/MorpheApp/morphe-documentation) verwenden. Zugangsdaten nur im Benutzerprofil oder Prozess, nie im Repository speichern.
 
 ```sh
 ./gradlew :patches:test :patches:buildAndroid
