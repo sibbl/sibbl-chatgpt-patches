@@ -107,6 +107,9 @@ class RealApkTest {
                     }
                 }
                 assertTrue(patchedMethodFound)
+                // Static caller-contract evidence, checked on both the original and clone.
+                assertExistingBrowserContracts(originalAuth)
+                assertExistingBrowserContracts(patchedAuth)
                 if (!trace) {
                     assertAuthDifferential(originalAuth.filterKeys { it in authComparisonTypes }, patchedAuth.filterKeys { it in authComparisonTypes })
                     traceFingerprints.forEach { (type, hash) -> assertEquals(hash, traceClassHash(patchedAuth.getValue(type))) }

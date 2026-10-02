@@ -27,7 +27,11 @@ internal val authComparisonTypes = setOf(
     NATIVE_REPOSITORY, "Ljd80;", "Lqd80;", "Lpa80;", "Lxl80;", "Lii7;", "Lfy0;",
     "Lrd6;", "Lh8o;", "Lpb6;", "Lnb6;", "Lpm40;", "Lnm40;", "Lgf80;",
     "Lrj40;", "Luj40;", "Lyj40;", "Lw780;", "Ltt1;", "Lib80;",
-    "Lk56;", "Lln8;", "Lnit;", "Law;", "Le280;", "Lbi40;", "Lnw4;"
+    "Lk56;", "Lln8;", "Lnit;", "Law;", "Le280;", "Lbi40;", "Lnw4;",
+    // Browser entry/result contracts: retain the ordinary callers and their continuations.
+    "Lcom/openai/feature/onboarding/impl/next/viewmodel/b;", "Lpj7;", "Lrh80;", "Lt5j;",
+    "Lte80;", "Lre80;", "Llk1;", "Lpd80;", "Lif80;", "Ldf80;", "Lef80;",
+    "Lub6;", "Lvb6;", "Lfhu0;", "Lsh80;", "Lzh80;", "Ll880;", "Ldav;", "Ltv0;"
 )
 
 /** Re-encode each class separately so unrelated DEX pool indices cannot affect comparison. */
