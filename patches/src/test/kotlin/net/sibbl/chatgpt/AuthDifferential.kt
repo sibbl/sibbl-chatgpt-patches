@@ -22,7 +22,12 @@ internal val authComparisonTypes = setOf(
     "Lzh7;", "Lf280;", "Lx6k0;", "Lm8n0;", "Lxhv;", "Lu56;",
     "Laq1;", "Lcom/openai/valdi/integrity/b;",
     "Lcom/openai/feature/auth/impl/web/WebAuthenticationActivity;",
-    "Lcom/openai/feature/auth/impl/web/WebRedirectActivity;"
+    "Lcom/openai/feature/auth/impl/web/WebRedirectActivity;",
+    // Native password serialization, request/client wiring, and the existing browser route.
+    NATIVE_REPOSITORY, "Ljd80;", "Lqd80;", "Lpa80;", "Lxl80;", "Lii7;", "Lfy0;",
+    "Lrd6;", "Lh8o;", "Lpb6;", "Lnb6;", "Lpm40;", "Lnm40;", "Lgf80;",
+    "Lrj40;", "Luj40;", "Lyj40;", "Lw780;", "Ltt1;", "Lib80;",
+    "Lk56;", "Lln8;", "Lnit;", "Law;", "Le280;", "Lbi40;", "Lnw4;"
 )
 
 /** Re-encode each class separately so unrelated DEX pool indices cannot affect comparison. */
