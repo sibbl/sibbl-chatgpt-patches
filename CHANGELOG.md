@@ -1,3 +1,9 @@
+## [1.0.0-dev.6](https://github.com/sibbl/sibbl-chatgpt-patches/compare/v1.0.0-dev.5...v1.0.0-dev.6) (2026-10-02)
+
+### ✨ New Features
+
+* trace native transport status and bounded response categories ([4a1ea18](https://github.com/sibbl/sibbl-chatgpt-patches/commit/4a1ea18375a3714c4e198f9700f352f12b453f05))
+
 ## [1.0.0-dev.5](https://github.com/sibbl/sibbl-chatgpt-patches/compare/v1.0.0-dev.4...v1.0.0-dev.5) (2026-10-02)
 
 ### ✨ New Features
