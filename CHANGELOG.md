@@ -1,3 +1,9 @@
+## [1.0.0-dev.5](https://github.com/sibbl/sibbl-chatgpt-patches/compare/v1.0.0-dev.4...v1.0.0-dev.5) (2026-10-02)
+
+### ✨ New Features
+
+* add opt-in secret-safe auth diagnostics ([f4f8d2a](https://github.com/sibbl/sibbl-chatgpt-patches/commit/f4f8d2a0d159ca5dd79a74c58903e6ef3b37ceb7))
+
 ## [1.0.0-dev.4](https://github.com/sibbl/sibbl-chatgpt-patches/compare/v1.0.0-dev.3...v1.0.0-dev.4) (2026-10-02)
 
 ### ✨ New Features

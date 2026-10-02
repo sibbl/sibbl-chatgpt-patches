@@ -36,7 +36,7 @@ Im Callback-Patch gibt es **Diagnostic auth tracing (no secrets)**, standardmä�
 Der optionale Patch **Clone ChatGPT (experimental baseline)** allein dient nur dem Vergleich und enthält den Callback-Fix nicht.
 
 <!-- PATCHES_START -->
-> **[v1.0.0-dev.4](https://github.com/sibbl/sibbl-chatgpt-patches/releases/tag/v1.0.0-dev.4)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
+> **[v1.0.0-dev.5](https://github.com/sibbl/sibbl-chatgpt-patches/releases/tag/v1.0.0-dev.5)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
 <details open>
 <summary>📦 ChatGPT&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -50,7 +50,7 @@ Der optionale Patch **Clone ChatGPT (experimental baseline)** allein dient nur d
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
 | [Clone ChatGPT (experimental baseline)](#clone-chatgpt-experimental-baseline) | Separate package with mandatory permission and provider renaming. Authentication is unresolved: this patch does not fix invalid auth request. Do not combine with the universal Clone app patch. | • Package name<br>• App name<br>• Update permissions<br>• Update providers |
-| [Preserve ChatGPT login callback (experimental)](#preserve-chatgpt-login-callback-experimental) | Keeps the original OAuth redirect URI when cloning. Includes the clone baseline. Static APK tests only: login and server acceptance are unverified; callback selection may still be needed. |  |
+| [Preserve ChatGPT login callback (experimental)](#preserve-chatgpt-login-callback-experimental) | Keeps the original OAuth redirect URI when cloning. Includes the clone baseline. Login and server acceptance remain unverified. Optional default-off auth diagnostics log fixed categories only. | • Diagnostic auth tracing (no secrets) |
 
 </details>
 

@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0-dev.4",
+  "version": "1.0.0-dev.5",
   "patches": [
     {
       "name": "Clone ChatGPT (experimental baseline)",
@@ -73,7 +73,7 @@
     },
     {
       "name": "Preserve ChatGPT login callback (experimental)",
-      "description": "Keeps the original OAuth redirect URI when cloning. Includes the clone baseline. Static APK tests only: login and server acceptance are unverified; callback selection may still be needed.",
+      "description": "Keeps the original OAuth redirect URI when cloning. Includes the clone baseline. Login and server acceptance remain unverified. Optional default-off auth diagnostics log fixed categories only.",
       "default": false,
       "category": null,
       "dependencies": [
@@ -103,7 +103,17 @@
           ]
         }
       ],
-      "options": []
+      "options": [
+        {
+          "key": "authTrace",
+          "title": "Diagnostic auth tracing (no secrets)",
+          "description": "Opt in to fixed phase/error categories under SibblAuthTrace. No credentials, server text, URLs or uploads. Diagnostic only; does not fix login.",
+          "required": false,
+          "type": "kotlin.Boolean",
+          "default": false,
+          "values": null
+        }
+      ]
     }
   ]
 }
