@@ -1,0 +1,75 @@
+package net.sibbl.chatgpt
+
+import com.android.tools.smali.dexlib2.Opcode
+import com.android.tools.smali.dexlib2.iface.instruction.*
+import com.android.tools.smali.dexlib2.iface.reference.*
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
+
+class AuthTraceTest {
+    @Test fun `tracing is an explicit default-off option`() {
+        assertEquals(false, loginCallbackPatch.options["authTrace"].value)
+    }
+
+    @Test fun `every compiled logger accepts only constant allowlisted output and catches its failures`() {
+        val kinds = traceFixedEvents + traceStages + "PAGE"
+        kinds.forEach { kind ->
+            val method = compileTraceHelper("LFixture;", kind, kind)
+            val impl = method.implementation!!
+            val instructions = impl.instructions.toList()
+            val permittedFields = setOf(
+                "Lhnq0;->b:Ljava/lang/Throwable;", "Ly480;->a:Ljava/lang/Throwable;",
+                "Lmnq0;->c:Ljava/lang/Integer;", "Lc580;->b:I"
+            )
+            val permittedCalls = setOf(
+                "Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I",
+                "Ljava/lang/Integer;->intValue()I"
+            )
+            val addresses = mutableListOf<Int>()
+            var address = 0
+            instructions.forEach { addresses += address; address += it.codeUnits }
+            instructions.forEachIndexed { index, instruction ->
+                if (instruction is OffsetInstruction) {
+                    val destination = addresses.indexOf(addresses[index] + instruction.codeOffset)
+                    assertTrue(destination >= 0)
+                    val target = (instructions[destination] as? ReferenceInstruction)?.reference as? MethodReference
+                    assertFalse(target?.definingClass == "Landroid/util/Log;", "A branch must not skip the literal assignment")
+                }
+                val reference = (instruction as? ReferenceInstruction)?.reference
+                when (reference) {
+                    is StringReference -> assertTrue(reference.string == TRACE_TAG || reference.string in traceAllowedMessages)
+                    is FieldReference -> assertTrue(reference.toString() in permittedFields)
+                    is MethodReference -> {
+                        assertTrue(reference.toString() in permittedCalls)
+                        if (reference.definingClass == "Landroid/util/Log;") {
+                            val call = instruction as FiveRegisterInstruction
+                            assertEquals(listOf(0, 1), listOf(call.registerC, call.registerD))
+                            assertEquals(2, call.registerCount)
+                            val previous = instructions[index - 1]
+                            assertEquals(Opcode.CONST_STRING, previous.opcode)
+                            assertEquals(1, (previous as OneRegisterInstruction).registerA)
+                            val tag = instructions.first()
+                            assertEquals(Opcode.CONST_STRING, tag.opcode)
+                            assertEquals(0, (tag as OneRegisterInstruction).registerA)
+                            assertEquals(TRACE_TAG, ((tag as ReferenceInstruction).reference as StringReference).string)
+                        }
+                    }
+                }
+                assertFalse(instruction.opcode.name.startsWith("IPUT") || instruction.opcode.name.startsWith("SPUT"))
+                if (instruction.opcode.setsRegister() && instruction is OneRegisterInstruction && instruction.registerA < 2)
+                    assertEquals(Opcode.CONST_STRING, instruction.opcode)
+            }
+            assertEquals(1, impl.tryBlocks.size)
+            assertEquals("Ljava/lang/Throwable;", impl.tryBlocks.single().exceptionHandlers.single().exceptionType)
+            assertEquals(Opcode.MOVE_EXCEPTION, instructions[instructions.size - 2].opcode)
+            assertEquals(Opcode.RETURN_VOID, instructions.last().opcode)
+            assertTrue(instructions.none { it.opcode == Opcode.THROW })
+        }
+    }
+
+    @Test fun `unknown output categories are rejected before compilation`() {
+        assertThrows(IllegalStateException::class.java) {
+            compileTraceHelper("LFixture;", "bad", "arbitrary server text")
+        }
+    }
+}

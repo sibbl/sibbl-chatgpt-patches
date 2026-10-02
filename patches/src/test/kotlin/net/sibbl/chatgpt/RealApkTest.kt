@@ -22,7 +22,10 @@ import org.w3c.dom.Element
 /** Opt-in, local-only static integration test. Never installs or launches the APK. */
 @EnabledIfEnvironmentVariable(named = "CHATGPT_TEST_APK", matches = ".+")
 class RealApkTest {
-    @Test fun `patches exact analyzed base APK and recompiles resources`() = runBlocking<Unit> {
+    @Test fun `patches exact analyzed base APK and recompiles resources`() = runBlocking<Unit> { verifyApk(false) }
+    @Test fun `opt-in diagnostics preserve original instructions and contain only allowlisted logging`() = runBlocking<Unit> { verifyApk(true) }
+
+    private suspend fun verifyApk(trace: Boolean) {
         val input = File(System.getenv("CHATGPT_TEST_APK"))
         val sha = MessageDigest.getInstance("SHA-256").digest(input.readBytes()).joinToString("") { "%02x".format(it) }
         assertEquals("979d758415b99ecf05118bce536b4e5a9eb9ea68ebdf77bbf064a57bb924d771", sha)
@@ -30,12 +33,13 @@ class RealApkTest {
         ZipFile(input).use { zip ->
             zip.entries().asSequence().filter { it.name.matches(Regex("classes[0-9]*\\.dex")) }.forEach { entry ->
                 val dex = DexBackedDexFile.fromInputStream(null, zip.getInputStream(entry).buffered())
-                dex.classes.filter { it.type in authComparisonTypes }.forEach { originalAuth[it.type] = it }
+                dex.classes.filter { it.type in authComparisonTypes || it.type in traceFingerprints }.forEach { originalAuth[it.type] = it }
             }
         }
         val temporary = Files.createTempDirectory("sibbl-chatgpt-static-test-").toFile()
         val label = System.getenv("CHATGPT_TEST_APP_NAME") ?: DEFAULT_APP_NAME
         cloneChatGptPatch.options["appName"] = label
+        loginCallbackPatch.options["authTrace"] = trace
         try {
             Patcher(PatcherConfig(input, temporaryFilesPath = temporary)).use { patcher ->
                 patcher += setOf(loginCallbackPatch)
@@ -82,7 +86,7 @@ class RealApkTest {
                 val patchedAuth = mutableMapOf<String, ClassDef>()
                 result.dexFiles.forEach { dex ->
                     val dexFile = DexBackedDexFile.fromInputStream(null, dex.stream.buffered())
-                    dexFile.classes.filter { it.type in authComparisonTypes }.forEach { patchedAuth[it.type] = it }
+                    dexFile.classes.filter { it.type in authComparisonTypes || it.type in traceFingerprints }.forEach { patchedAuth[it.type] = it }
                     dexFile.classes.firstOrNull { it.type == "Li280;" }?.let { cls ->
                         val method = cls.methods.single { it.name == "invoke" && it.parameterTypes.isEmpty() }
                         val instructions = method.implementation!!.instructions.toList()
@@ -103,7 +107,12 @@ class RealApkTest {
                     }
                 }
                 assertTrue(patchedMethodFound)
-                assertAuthDifferential(originalAuth, patchedAuth)
+                if (!trace) {
+                    assertAuthDifferential(originalAuth.filterKeys { it in authComparisonTypes }, patchedAuth.filterKeys { it in authComparisonTypes })
+                    traceFingerprints.forEach { (type, hash) -> assertEquals(hash, traceClassHash(patchedAuth.getValue(type))) }
+                } else {
+                    assertTraceIntegration(originalAuth, patchedAuth)
+                }
                 val compiled = result.resources.resourcesApk
                 assertNotNull(compiled)
                 assertTrue(compiled!!.length() > 0)
@@ -111,6 +120,7 @@ class RealApkTest {
             }
         } finally {
             cloneChatGptPatch.options["appName"] = DEFAULT_APP_NAME
+            loginCallbackPatch.options["authTrace"] = false
         }
     }
 }

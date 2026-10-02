@@ -21,6 +21,10 @@ Alternativ die `.mpp` vom neuesten [Prerelease](https://github.com/sibbl/sibbl-c
 
 Beide Apps beanspruchen weiterhin den ursprünglichen Login-Callback. Wenn Android eine Appauswahl zeigt, den **Klon** wählen. Callback-Routing, Browser/Auth Tab, Integritätsprüfung und vollständiger Login sind noch auf dem Gerät zu prüfen. Bitte nur Fehlerphase (vor Browser / im Browser / nach Rückkehr), Android-/Browser-Version und Fehlermeldung melden — keine Auth-URLs mit Parametern, Tokens oder Rohlogs veröffentlichen.
 
+## Optionale Login-Diagnose
+
+Im Callback-Patch gibt es **Diagnostic auth tracing (no secrets)**, standardmäßig **aus**. Aktiviert protokolliert sie unter `SibblAuthTrace` ausschließlich feste Phasen, Fehlerkategorien und ausgewählte HTTP-Statuscodes. Keine Zugangsdaten, Servertexte, Auth-URLs oder Uploads. Diese Veröffentlichung dient der Diagnose und enthält keinen neuen behaupteten Login-Fix. [Aktivierung, Beobachtung und Bedeutung der Marker](docs/diagnostics.md).
+
 ## Was geändert wird
 
 - Clone-Manifestlogik auf Basis des offiziellen **Clone app** aus Morphe Patches **v1.45.0**.
@@ -60,7 +64,7 @@ Der optionale Patch **Clone ChatGPT (experimental baseline)** allein dient nur d
 | Morphe Manager | 1.33.0 als aktueller Stable-Stand geprüft |
 | Offizielle Patches / Patcher / Buildplugin | 1.45.0 / 1.15.0 / 1.3.4 |
 | Tests | Synthetische Manifesttests und lokaler statischer APK-Integrationstest |
-| Gerät / Login | Nutzer bestätigt Patchbuild; meldet „Incorrect email address or password“. Login weiterhin unbestätigt. Entwicklung hat keine App installiert/gestartet. |
+| Gerät / Login | Nutzer bestätigt Installation von dev.4; meldet „Incorrect email address or password“. Login weiterhin unbestätigt. Entwicklung hat keine App installiert/gestartet. |
 
 [Analyse und Belegstellen](docs/auth-analysis.md) · [Herkunft und Prüfsummen](docs/provenance.md) · [Build und Veröffentlichung](docs/development.md)
 

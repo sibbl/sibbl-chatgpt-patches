@@ -10,7 +10,7 @@ Use JDK 21. The official Gradle plugin resolves Patcher and smali from GitHub Pa
 
 ## Optional real-APK static integration test
 
-Keep the APK outside the checkout. Set `CHATGPT_TEST_APK` to the extracted **base.apk** from the exact bundle in provenance.md, then run the same build command. The test verifies the base SHA256, applies the real patches, recompiles resources, rereads output DEX and asserts the two callback overrides while the third package read remains dynamic. Temporary output remains in an OS temporary directory; the test never installs, launches, signs or uploads an APK.
+Keep the APK outside the checkout. Set `CHATGPT_TEST_APK` to the extracted **base.apk** from the exact bundle in provenance.md, then run the same build command. The tests exercise diagnostic tracing both disabled and enabled. They verify helper privacy constraints and preservation of original instruction operands, control flow, registers and exception boundaries. The test verifies the base SHA256, applies the real patches, recompiles resources, rereads output DEX and asserts the two callback overrides while the third package read remains dynamic. Temporary output remains in an OS temporary directory; the test never installs, launches, signs or uploads an APK.
 
 ```sh
 CHATGPT_TEST_APK=/absolute/private/path/base.apk ./gradlew :patches:test :patches:buildAndroid --rerun-tasks
@@ -37,3 +37,13 @@ Do not relax version guards from a version-name match alone. Verify the new bina
 Locked dependencies were installed with lifecycle scripts disabled. npm audit reported three findings (two high, one moderate) in dependencies bundled inside npm 11.21.0, pulled in by semantic-release's default npm plugin: brace-expansion, undici and ip-address. No compatible npm 11 update was available; audit fix could not change bundled dependencies. This project's explicit plugin list does not enable @semantic-release/npm and publishes no npm package. These tools are not included in the .mpp or target app. The remaining audit findings are tracked here rather than described as resolved. Recheck before future releases.
 
 Release v1.0.0-dev.1 initially also included a stale preflight `patches-1.0.0.mpp` beside the correctly versioned artifact. Its official metadata pointed to the correct dev bundle. The workflow now cleans the preflight output before semantic release to ensure later releases contain only their matching version; use the newest prerelease.
+
+## Offline build with a warm dependency cache
+
+The upstream plugin requires nonempty repository credential properties even offline. With dependencies already cached, use literal dummy values instead of accessing a real credential:
+
+```sh
+./gradlew :patches:test :patches:buildAndroid --offline --no-daemon -Pgpr.user=offline -Pgpr.key=offline
+```
+
+These values grant no access. Keep `--offline`; a first build still needs dependency setup as described above.

@@ -6,6 +6,7 @@ import app.morphe.patcher.patch.ApkFileType
 import app.morphe.patcher.patch.AppTarget
 import app.morphe.patcher.patch.Compatibility
 import app.morphe.patcher.patch.bytecodePatch
+import app.morphe.patcher.patch.booleanOption
 import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.Method
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
@@ -40,7 +41,7 @@ internal fun callbackReads(method: Method): List<Int> {
 val loginCallbackPatch = bytecodePatch(
     name = "Preserve ChatGPT login callback (experimental)",
     description = "Keeps the original OAuth redirect URI when cloning. Includes the clone baseline. " +
-        "Static APK tests only: login and server acceptance are unverified; callback selection may still be needed.",
+        "Login and server acceptance remain unverified. Optional default-off auth diagnostics log fixed categories only.",
     default = false
 ) {
     compatibleWith(Compatibility(
@@ -49,8 +50,13 @@ val loginCallbackPatch = bytecodePatch(
             isExperimental = true, minSdk = 32, description = CANDIDATE_DESCRIPTION))
     ))
     dependsOn(cloneChatGptPatch)
+    val authTrace = booleanOption(
+        key = "authTrace", default = false, title = "Diagnostic auth tracing (no secrets)",
+        description = "Opt in to fixed phase/error categories under SibblAuthTrace. No credentials, server text, URLs or uploads. Diagnostic only; does not fix login."
+    )
     execute {
         validateOriginalInput(packageMetadata.packageName, packageMetadata.versionName, packageMetadata.versionCode)
+        if (authTrace.value == true) installAuthTrace()
         val method = mutableClassDefBy("Li280;").methods.single {
             it.name == "invoke" && it.parameterTypes.isEmpty() && it.returnType == "Ljava/lang/Object;"
         }
