@@ -12,7 +12,7 @@ Alle Symbole beziehen sich auf die in `provenance.md` gehashte Base-APK. Obfuska
 
 | Ort | Beobachtung | Konsequenz |
 |---|---|---|
-| `classes3.dex`, `Li280;->invoke()Ljava/lang/Object;` | Zwei Context.getPackageName-Aufrufe liefern Scheme und Paketsegment der Redirect-URI; Konstanten `://auth.openai.com/android/` und `/callback` rahmen sie ein. | Original erzeugt `com.openai.chatgpt://auth.openai.com/android/com.openai.chatgpt/callback`; Standardklon erzeugt `app.sibbl.chatgpt.private://auth.openai.com/android/app.sibbl.chatgpt.private/callback`. |
+| `classes3.dex`, `Li280;->invoke()Ljava/lang/Object;` | Zwei Context.getPackageName-Aufrufe liefern Scheme und Paketsegment der Redirect-URI; Konstanten `://auth.openai.com/android/` und `/callback` rahmen sie ein. | Original erzeugt `com.openai.chatgpt://auth.openai.com/android/com.openai.chatgpt/callback`; Standardklon ohne Callback-Fix erzeugt `com.openai.chatgpt.clone://auth.openai.com/android/com.openai.chatgpt.clone/callback`. |
 | Dasselbe Verfahren | Dritter getPackageName-Aufruf fließt separat in die Appkonfiguration. | Dieser wird ausdrücklich nicht geändert. |
 | `classes.dex`, `Ll690;->b(...)` | Übernimmt Konfigurationsfeld `v6k0.c` als `redirect_uri`; generiert PKCE S256, state und nonce. | Rename verändert die an Auth übergebene URI; die Schutzmechanismen bleiben erhalten. |
 | Manifest, `com.openai.feature.auth.impl.web.WebRedirectActivity` | Scheme `com.openai.chatgpt`, Pfadpräfix `/android/com.openai.chatgpt/callback`; u. a. Host `auth.openai.com`. | Unveränderte Filter passen nicht zur umbenannten URI. |
@@ -40,7 +40,15 @@ Upstream iteriert über alle provider-Elemente einschließlich externer Abfragen
 ## Validierung
 
 - Paket, Version, SHA256 und originale APK-Signatur lokal geprüft.
-- Vier synthetische Tests: Deklarationen/Referenzen/Callback-Erhalt, Provider-Ressourcen, Versions-/Optionsguards, Ablehnung bereits geklonter Eingaben.
+- Synthetische Tests für Manifestreferenzen, Provider-Ressourcen, Versions-/Optionsguards, informative Fehlermeldungen und Unicode/XML-/Launcher-Namen.
 - Opt-in-Integrationstest auf der exakt gehashten APK: tatsächliche Patches einschließlich Finalizer ausgeführt; Ressourcen neu kompiliert; erzeugte DEX-Dateien erneut gelesen und nur die zwei festen Callback-Paketwerte sowie der weiter dynamische dritte Paketaufruf geprüft.
 - Vollständige JADX-Dekompilation lief in ein Speicherlimit. Die benötigten Auth-Konfigurationsklassen wurden gezielt separat dekompiliert und durch DEX-Referenzen/Instruktionsreihenfolge ergänzt. Es wird keine vollständige Codeprüfung behauptet.
-- Offen: fertiges APKM-Merging und Signieren im Manager, Installation neben Original, Browser-/Callback-Routing und Login auf dem Gerät. Keine APK wurde von der Entwicklung installiert oder gestartet.
+- Nutzer bestätigt inzwischen den erfolgreichen Patchbuild in Morphe mit der unterstützten Eingabe. Browser-/Callback-Routing, tatsächliche Installation neben Original und Login bleiben nicht durch die Entwicklung bestätigt. Keine APK wurde von der Entwicklung installiert oder gestartet.
+
+## Gerätebefund: „Incorrect email address or password“
+
+Der Nutzer meldet nach erfolgreichem Patchen diese neue Loginmeldung. Das ist ein getrennt zu untersuchender Befund und kein bestätigter Login. Die genaue Fehlerphase und der ursprünglich genutzte Anmeldeweg sind noch offen; es wird weder ein falsches Passwort noch eine bestimmte Serverprüfung als Ursache behauptet.
+
+Erneute statische Prüfung: `i280.invoke` übernimmt Auth-Konfigurationswerte unverändert aus `ugc` in `v6k0`; die zwei ersetzten Rückgaben gehen allein in dessen Redirect-Feld. `l690.b` liest `client_id` aus `v6k0.a` und `redirect_uri` aus `v6k0.c`, erzeugt unverändert PKCE S256/state/nonce und übernimmt unverändert die übrigen Authparameter. Der Patch wählt keine Passwort- oder Social-Loginroute aus, schreibt keine Zugangsdaten und verändert keine Cookie-/Credential-Storage-Funktionen. Der dritte Paketaufruf, SMS-app_hash und Integritätspfade bleiben dynamisch beziehungsweise unverändert. Neue Appdaten sind durch den neuen Paketnamen getrennt; bestehende Kontotokens werden nicht übertragen. Das ist eine abgegrenzte Quellprüfung, keine vollständige Prüfung aller Browser-/Serverzustände.
+
+Für die Einordnung genügen nicht geheime Angaben: verwendete Methode (E-Mail/Passwort oder Google/Apple/Microsoft), ob dieselbe Methode in Originalapp beziehungsweise normalem Browser funktioniert, und Fehlerphase (vor Browser, im Browser, nach Rückkehr). Die [offizielle OpenAI-Hilfe zur Anmeldemethode](https://help.openai.com/en/articles/4936824-can-i-change-how-i-log-into-my-account-authentication-method) beschreibt Unterschiede zwischen Passwort- und Social-Anmeldung; die [Login-Hilfe](https://help.openai.com/en/articles/7426629-why-cant-i-log-in-to-chatgpt) behandelt den ursprünglichen Anmeldeweg und Browserkontext. Beides sind mögliche Diagnoseansätze, keine Belege für diesen Nutzerfall. Keine Passwörter, Tokens, vollständigen Auth-URLs oder Rohlogs teilen; kein Passwortreset oder Kontoänderung wird angefordert.

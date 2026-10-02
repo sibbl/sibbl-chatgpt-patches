@@ -33,7 +33,7 @@ import org.w3c.dom.Document
 import org.w3c.dom.Element
 
 internal const val ORIGINAL_PACKAGE = "com.openai.chatgpt"
-internal const val CLONE_PACKAGE = "app.sibbl.chatgpt.private"
+internal const val CLONE_PACKAGE = "$ORIGINAL_PACKAGE.clone"
 internal const val CANDIDATE_VERSION = "1.2026.265"
 internal const val CANDIDATE_CODE = "2626541"
 

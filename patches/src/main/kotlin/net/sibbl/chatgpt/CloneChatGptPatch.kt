@@ -32,6 +32,10 @@ val cloneChatGptPatch = resourcePatch(
         key = "packageName", default = CLONE_PACKAGE, title = "Package name",
         description = "Unique package for the private-account clone.", required = true
     )
+    val appName = stringOption(
+        key = "appName", default = DEFAULT_APP_NAME, title = "App name",
+        description = "Application and launcher name. Unicode and punctuation are supported.", required = true
+    )
     val permissions = booleanOption(
         key = "updatePermissions", default = true, title = "Update permissions",
         description = "Required: rename custom permissions to avoid installation conflicts."
@@ -43,11 +47,16 @@ val cloneChatGptPatch = resourcePatch(
     // Keep upstream's finalize lifecycle; test the final manifest, not execute-time state.
     finalize {
         val replacement = requireNotNull(packageName.value)
+        val label = requireNotNull(appName.value)
+        validateAppName(label)
         validateInput(packageMetadata.packageName, packageMetadata.versionName,
             packageMetadata.versionCode, replacement, permissions.value == true, providers.value == true)
-        val names = document("AndroidManifest.xml").use { cloneManifest(it, replacement) }
-        if (names.isNotEmpty()) {
-            document("res/values/strings.xml").use { cloneProviderResources(it, names, replacement) }
+        val names = document("AndroidManifest.xml").use {
+            cloneManifest(it, replacement).also { _ -> renameAppLabels(it) }
+        }
+        document("res/values/strings.xml").use {
+            cloneProviderResources(it, names, replacement)
+            writeAppNameResource(it, label)
         }
     }
 }
