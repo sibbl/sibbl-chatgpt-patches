@@ -5,6 +5,7 @@ import com.android.tools.smali.dexlib2.iface.ClassDef
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.FiveRegisterInstruction
+import com.android.tools.smali.dexlib2.iface.instruction.OffsetInstruction
 import com.android.tools.smali.dexlib2.iface.reference.StringReference
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 import org.junit.jupiter.api.Assertions.*
@@ -20,6 +21,43 @@ internal fun assertExistingBrowserContracts(classes: Map<String, ClassDef>) {
     // The generic flow and Google provider are distinct existing configurations.
     assertEquals(listOf("", "login_or_signup"), literals("Lub6;"))
     assertEquals(listOf("google-oauth2"), literals("Lvb6;"))
+    // These references verify normal initialization and complete top-level dispatch, not a new patch.
+    fun refs(type: String, name: String) = body(type, name).mapNotNull {
+        (it as? ReferenceInstruction)?.reference?.toString()
+    }
+    val reset = refs("Lusk;", "e")
+    assertTrue("Ljava/util/ArrayList;->clear()V" in reset)
+    assertTrue("Lef80;-><init>(Lze6;)V" in reset)
+    assertTrue("Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z" in reset)
+    assertTrue("Lusk;->e(Lze6;)V" in refs("Lqd80;", "k"))
+    assertTrue("Lusk;->e(Lze6;)V" in refs("Lqd80;", "j"))
+    val entry = refs("Lrt0;", "t")
+    assertTrue("Lkpw0;->c(Lbk40;)Lew4;" in entry)
+    assertTrue("Lyj40;->g()Z" in entry)
+    assertTrue(entry.any { it.startsWith("Lcn40;->H(") })
+    assertTrue("Lyj40;->g()Z" in refs("Lrl40;", "d"))
+    val fullWeb = refs("Lql40;", "invokeSuspend")
+    assertTrue("Lrj40;->a(Ls7m;)Ljava/lang/Object;" in fullWeb)
+    assertTrue("Lrp6;->b(Lsm40;Ls7m;)Ljava/lang/Object;" in fullWeb)
+    assertTrue(refs("Lrp6;", "c").any { it.startsWith("Lehu0;->h(") })
+    // The native selector jumps to a normal setup block, not directly past web preparation.
+    val selection = body("Lxb80;", "c")
+    var address = 0
+    val offsets = selection.map { val at = address; address += it.codeUnits; at }
+    val ub6 = selection.indices.single {
+        (selection[it] as? ReferenceInstruction)?.reference?.toString() == "Lub6;->e:Lub6;"
+    }
+    val key = (ub6 until selection.size).first {
+        (selection[it] as? ReferenceInstruction)?.reference?.toString() == "Lrj40;->a(Ls7m;)Ljava/lang/Object;"
+    }
+    val branch = (ub6 until key).single {
+        selection[it].opcode == Opcode.IF_EQZ && (selection[it] as OffsetInstruction).codeOffset > 500
+    }
+    val target = offsets.indexOf(offsets[branch] + (selection[branch] as OffsetInstruction).codeOffset)
+    assertTrue(target > key)
+    assertTrue(selection.drop(target).any {
+        (it as? ReferenceInstruction)?.reference?.toString()?.startsWith("Lnl40;->a(") == true
+    })
     val browser = body("Lqd80;", "l")
     val refs = browser.mapNotNull { (it as? ReferenceInstruction)?.reference?.toString() }
     assertTrue("Lrj40;->a(Ls7m;)Ljava/lang/Object;" in refs)

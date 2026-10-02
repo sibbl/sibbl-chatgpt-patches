@@ -2,6 +2,8 @@
 
 Status: **no browser-selection patch implemented or published**. The latest released patch remains v1.0.0-dev.7. This review uses only the pinned ChatGPT 1.2026.265 / 2626541 APK. No APK is executed, installed, or uploaded; no OAuth request, account change, or further device observation is performed.
 
+A targeted follow-up in [browser-top-level-entry.md](browser-top-level-entry.md) identifies a different top-level route-selection point and resolves the startup-stack concern for that complete web pipeline. The rejected native-password call-site swaps below remain invalid. No production route preference has been implemented.
+
 ## Email/password requirement
 
 The user wants email/password authentication, not Google sign-in. The existing generic configuration `ub6` has an empty provider and `login_or_signup` screen hint. The distinct `vb6` configuration explicitly names `google-oauth2`. `qd80.m` with the existing mask 60 defaults its provider-selection boolean to false and requests the interactive mode. `qd80.l` selects `ub6` when this boolean is false. Its other boolean, taken from `qd80.q`, is a separate argument and must not be mistaken for the provider selector.

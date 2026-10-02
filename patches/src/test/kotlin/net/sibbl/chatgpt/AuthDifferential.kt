@@ -31,7 +31,11 @@ internal val authComparisonTypes = setOf(
     // Browser entry/result contracts: retain the ordinary callers and their continuations.
     "Lcom/openai/feature/onboarding/impl/next/viewmodel/b;", "Lpj7;", "Lrh80;", "Lt5j;",
     "Lte80;", "Lre80;", "Llk1;", "Lpd80;", "Lif80;", "Ldf80;", "Lef80;",
-    "Lub6;", "Lvb6;", "Lfhu0;", "Lsh80;", "Lzh80;", "Ll880;", "Ldav;", "Ltv0;"
+    "Lub6;", "Lvb6;", "Lfhu0;", "Lsh80;", "Lzh80;", "Ll880;", "Ldav;", "Ltv0;",
+    // Top-level route selection, scope ownership, state initialization and full web pipeline.
+    "Lxb80;", "Lwb80;", "Lub80;", "Lvb80;", "Lcn40;", "Lxm40;", "Lrt0;", "Ldn40;",
+    "Lubs;", "Lln40;", "Lnl40;", "Lrl40;", "Lql40;", "Lpl40;", "Lrp6;", "Lsm40;",
+    "Lcj40;", "Lbj40;", "Lusk;", "Lod80;", "Lnd80;", "Lze6;", "Lec6;"
 )
 
 /** Re-encode each class separately so unrelated DEX pool indices cannot affect comparison. */
