@@ -25,7 +25,10 @@ class RealApkTest {
     @Test fun `patches exact analyzed base APK and recompiles resources`() = runBlocking<Unit> { verifyApk(false) }
     @Test fun `opt-in diagnostics preserve original instructions and contain only allowlisted logging`() = runBlocking<Unit> { verifyApk(true) }
 
-    private suspend fun verifyApk(trace: Boolean) {
+    @Test fun `initial browser preference preserves all other auth code`() = runBlocking<Unit> { verifyApk(false, true) }
+    @Test fun `browser preference and diagnostics compose without changing security pipeline`() = runBlocking<Unit> { verifyApk(true, true) }
+
+    private suspend fun verifyApk(trace: Boolean, browser: Boolean = false) {
         val input = File(System.getenv("CHATGPT_TEST_APK"))
         val sha = MessageDigest.getInstance("SHA-256").digest(input.readBytes()).joinToString("") { "%02x".format(it) }
         assertEquals("979d758415b99ecf05118bce536b4e5a9eb9ea68ebdf77bbf064a57bb924d771", sha)
@@ -40,6 +43,7 @@ class RealApkTest {
         val label = System.getenv("CHATGPT_TEST_APP_NAME") ?: DEFAULT_APP_NAME
         cloneChatGptPatch.options["appName"] = label
         loginCallbackPatch.options["authTrace"] = trace
+        loginCallbackPatch.options["preferInitialBrowser"] = browser
         try {
             Patcher(PatcherConfig(input, temporaryFilesPath = temporary)).use { patcher ->
                 patcher += setOf(loginCallbackPatch)
@@ -107,6 +111,11 @@ class RealApkTest {
                     }
                 }
                 assertTrue(patchedMethodFound)
+                if (browser) {
+                    patchedAuth[BROWSER_OWNER] = checkedBrowserBaseline(originalAuth.getValue(BROWSER_OWNER), patchedAuth.getValue(BROWSER_OWNER))
+                } else {
+                    assertTrue(patchedAuth.getValue(BROWSER_OWNER).methods.none { it.name == BROWSER_HELPER })
+                }
                 // Static caller-contract evidence, checked on both the original and clone.
                 assertExistingBrowserContracts(originalAuth)
                 assertExistingBrowserContracts(patchedAuth)
@@ -124,6 +133,7 @@ class RealApkTest {
         } finally {
             cloneChatGptPatch.options["appName"] = DEFAULT_APP_NAME
             loginCallbackPatch.options["authTrace"] = false
+            loginCallbackPatch.options["preferInitialBrowser"] = false
         }
     }
 }

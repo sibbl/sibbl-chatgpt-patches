@@ -10,7 +10,7 @@ import com.android.tools.smali.dexlib2.iface.reference.FieldReference
 import org.junit.jupiter.api.Assertions.*
 
 /** Compare original control flow and operands after removing ONLY our injected calls. */
-private fun normalized(method: Method): Pair<List<String>, List<String>> {
+internal fun normalized(method: Method): Pair<List<String>, List<String>> {
     val impl = method.implementation ?: return emptyList<String>() to emptyList()
     val instructions = impl.instructions.toList()
     fun isTrace(i: Instruction): Boolean = ((i as? ReferenceInstruction)?.reference as? MethodReference)

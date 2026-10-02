@@ -35,7 +35,7 @@ internal val authComparisonTypes = setOf(
     // Top-level route selection, scope ownership, state initialization and full web pipeline.
     "Lxb80;", "Lwb80;", "Lub80;", "Lvb80;", "Lcn40;", "Lxm40;", "Lrt0;", "Ldn40;",
     "Lubs;", "Lln40;", "Lnl40;", "Lrl40;", "Lql40;", "Lpl40;", "Lrp6;", "Lsm40;",
-    "Lcj40;", "Lbj40;", "Lusk;", "Lod80;", "Lnd80;", "Lze6;", "Lec6;"
+    "Lcj40;", "Lbj40;", "Lusk;", "Lod80;", "Lnd80;", "Lze6;", "Lec6;", "Lfa6;"
 )
 
 /** Re-encode each class separately so unrelated DEX pool indices cannot affect comparison. */

@@ -1,0 +1,42 @@
+# Initial browser route candidate — local only
+
+This is a reviewable, default-off candidate on `investigate/browser-route-contract`. It is **not published and is not included in the released v1.0.0-dev.7 bundle**. Its purpose is explicit selection of the client's existing complete generic web login route before native authorization. It does not resolve or reinterpret a native password rejection. No device login, installation or runtime acceptance is claimed.
+
+## Option and exact scope
+
+The existing **Preserve ChatGPT login callback (experimental)** patch has a new boolean option:
+
+- Key: `preferInitialBrowser`.
+- Title: **Prefer browser for initial email login (experimental)**.
+- Default: **false**; the helper and route injection are absent when off.
+- Input remains exactly **ChatGPT 1.2026.265 / 2626541**, with the analyzed base SHA256 in provenance.md. This does not enable newer APKs or other variants.
+
+When on, the predicate selects the ordinary top-level web setup only if every condition holds: exact generic `ub6.e` configuration, interactive mode, no existing credential object, source `fa6.e` (WelcomeDisclosure), and a non-null genuine scope without a reauthentication binding. This uses the existing generic user action proved in browser-top-level-entry.md. It does not replace Google sign-in or intercept a password-submit coroutine. LoginMenu/LandingScreen, account selection, MFA, SSO retrigger, deep links, silent flows, existing credentials and reauthentication retain their original route decision.
+
+## Bounded implementation
+
+`InitialBrowserRoute.kt` verifies five original class hashes (`xb80`, `yj40`, `fa6`, `ub6`, `vb80`), the full method signature, register count and injection anchor before editing. At the first-invocation selector in `xb80.c`, it inserts five instructions and adds a private pure predicate in the already initialized caller class. Only a matching predicate clears the local native-eligibility flag. The existing branch then enters its original full web setup block.
+
+No argument, source enum, silent/provider flag, continuation, scope, input credential or server response is overwritten. The original scratch register is overwritten by both ordinary successors before they use it; this liveness fact is checked against the pinned bytecode. The predicate has no external method calls, logging or writes. It checks only object identity/nullness and the absence of the existing reauthentication binding.
+
+The original top-level controller continues to own loading, cancellation, suspension, credential storage and errors. Its web route retains active-scope validation, genuine signing-key acquisition and the complete `ehu0.h` pipeline: preauth/integrity handling, PKCE/state/nonce, the existing callback checks and token exchange. The existing callback preservation remains the only redirect correction. No security gate, rejected request or metadata value is fabricated or converted into success.
+
+## Static tests
+
+The verification runs against the private pinned APK without executing app code:
+
+- The compiled injected predicate and branch are interpreted against **960 synthetic combinations** of eligibility, generic/social/provider configuration, source, silent mode, credentials and fresh/reauth/absent scope. The matrix also runs on the actual re-encoded candidate DEX in both candidate integration configurations. All original arguments are checked unchanged.
+- The actual DEX coroutine dispatch is traversed: state 0 can reach the new selection; all eight resume states cannot. Existing original branch targets, registers, operands, switch destinations and exception boundaries are checked after removing only the exact validated injection.
+- The helper's exact body/signature/flags are checked. All original methods and class/method/field metadata in `xb80` are independently verified. Morphe's mutable proxy changes binary representation even for an unchanged copy, so the test checks bodies by normalized instruction/control-flow comparison and metadata through a canonical reconstruction. This representation handling is confined to the injection class.
+- **99 selected classes** cover the route plus native requests, security and callback code. Default-off and trace-only retain the prior canonical/trace differential. Candidate mode verifies its exact bounded delta, then runs that same differential. The entire web/security pipeline and non-target classes are retained.
+- Four pinned-APK configurations recompile resources: default, diagnostics only, browser preference only, and both options together. An explicit test verifies the preference defaults to false and another rejects a changed top-level method contract.
+
+## Remaining limits
+
+Email/password acceptance on the hosted page, clone signing/integrity acceptance, callback return to this clone and completed session storage still require a separately authorized runtime test. The general OpenAI web configuration is distinct from Google's; it does not guarantee which controls a live hosted page offers. Server/preflight failure continues to propagate.
+
+The fallback custom-scheme callback shares its initial Android filter with the original app. The Auth Tab redirect scheme and callback validators are unchanged. This candidate does not claim to resolve that fallback's app-selection ambiguity. Existing diagnostics remain fixed-category and unchanged; no new trace events, account data or captured URLs are added.
+
+No test is requested tonight. This branch contains only patch source, tests and documentation. No APK, decompiled method body, raw log, token, signing secret, workflow secret or executable release is committed or uploaded. Release metadata, workflows and the remote branch remain unchanged.
+
+Local validation completed: **24 Kotlin tests** passed with no failures or skips, including all four pinned-APK/resource-recompiling configurations and the compiled-bytecode matrix; **11 Python tests** passed; `:patches:buildAndroid` succeeded offline. These results validate static patch behavior and buildability, not a live login.

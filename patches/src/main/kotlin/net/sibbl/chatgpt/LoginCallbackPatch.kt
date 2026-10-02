@@ -54,8 +54,13 @@ val loginCallbackPatch = bytecodePatch(
         key = "authTrace", default = false, title = "Diagnostic auth tracing (no secrets)",
         description = "Opt in to fixed phase/error categories under SibblAuthTrace. No credentials, server text, URLs or uploads. Diagnostic only; does not fix login."
     )
+    val preferInitialBrowser = booleanOption(
+        key = "preferInitialBrowser", default = false, title = "Prefer browser for initial email login (experimental)",
+        description = "Opt in to the existing complete web route from the initial generic welcome login. Keeps silent, social and reauthentication routes. Email/password acceptance and return to this clone remain unverified."
+    )
     execute {
         validateOriginalInput(packageMetadata.packageName, packageMetadata.versionName, packageMetadata.versionCode)
+        if (preferInitialBrowser.value == true) installInitialBrowserRoute()
         if (authTrace.value == true) installAuthTrace()
         val method = mutableClassDefBy("Li280;").methods.single {
             it.name == "invoke" && it.parameterTypes.isEmpty() && it.returnType == "Ljava/lang/Object;"

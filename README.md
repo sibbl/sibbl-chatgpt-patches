@@ -4,6 +4,10 @@ Experimentelle Patches für **Morphe**, um eine zweite ChatGPT-App mit getrennte
 
 **Status: statisch geprüfter Callback-Fix, noch kein bestätigter Geräte-Login.** Der Nutzer bestätigt inzwischen einen erfolgreichen Patchbuild, beim Login erscheint aber „Incorrect email address or password“. Ein frischer E-Mail/Passwort-Login im privaten Browser funktioniert. Die Ursache des App-Fehlers ist offen; siehe [Differentialanalyse](docs/auth-differential.md). Der Patch bewahrt die ursprüngliche OAuth-Redirect-URI. Er deaktiviert weder PKCE/state/nonce noch Play Integrity, Signaturprüfungen oder TLS. Eine mögliche serverseitige Ablehnung wird nicht umgangen.
 
+## Lokaler Kandidat auf dem Untersuchungsbranch
+
+Auf `investigate/browser-route-contract` liegt eine standardmäßig ausgeschaltete Option **Prefer browser for initial email login (experimental)** für den bestehenden generischen Erstanmeldeweg. Sie ist **noch nicht veröffentlicht und nicht in dev.7 enthalten**. E-Mail/Passwort-Akzeptanz und Rückkehr zum Klon bleiben ungeprüft; [Umfang, Tests und Grenzen](docs/initial-browser-candidate.md).
+
 ## In Morphe testen
 
 Die Quelle enthält ausschließlich experimentelle Prereleases. Für den Erstimport unter **Sources → + → Remote** diese Metadaten-URL eintragen und als Namen **sibbl ChatGPT patches** verwenden:
