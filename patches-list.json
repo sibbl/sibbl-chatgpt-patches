@@ -1,5 +1,100 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "0.0.0",
-  "patches": []
+  "version": "1.0.0-dev.1",
+  "patches": [
+    {
+      "name": "Clone ChatGPT (experimental baseline)",
+      "description": "Separate package with mandatory permission and provider renaming. Authentication is unresolved: this patch does not fix invalid auth request. Do not combine with the universal Clone app patch.",
+      "default": false,
+      "category": null,
+      "dependencies": [],
+      "compatiblePackages": [
+        {
+          "packageName": "com.openai.chatgpt",
+          "name": "ChatGPT",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": null,
+          "signatures": null,
+          "targets": [
+            {
+              "version": "1.2026.265",
+              "versionCodes": {
+                "ARM64_V8A": 2626541,
+                "ARMEABI_V7A": 2626541,
+                "X86_64": 2626541,
+                "X86": 2626541
+              },
+              "isExperimental": true,
+              "minSdk": 32,
+              "description": "APK statically tested; installation and login remain unverified."
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "key": "packageName",
+          "title": "Package name",
+          "description": "Unique package for the private-account clone.",
+          "required": true,
+          "type": "kotlin.String",
+          "default": "app.sibbl.chatgpt.private",
+          "values": null
+        },
+        {
+          "key": "updatePermissions",
+          "title": "Update permissions",
+          "description": "Required: rename custom permissions to avoid installation conflicts.",
+          "required": false,
+          "type": "kotlin.Boolean",
+          "default": true,
+          "values": null
+        },
+        {
+          "key": "updateProviders",
+          "title": "Update providers",
+          "description": "Required: rename provider authorities to avoid installation conflicts.",
+          "required": false,
+          "type": "kotlin.Boolean",
+          "default": true,
+          "values": null
+        }
+      ]
+    },
+    {
+      "name": "Preserve ChatGPT login callback (experimental)",
+      "description": "Keeps the original OAuth redirect URI when cloning. Includes the clone baseline. Static APK tests only: login and server acceptance are unverified; callback selection may still be needed.",
+      "default": false,
+      "category": null,
+      "dependencies": [
+        "ResourcePatch"
+      ],
+      "compatiblePackages": [
+        {
+          "packageName": "com.openai.chatgpt",
+          "name": "ChatGPT",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": null,
+          "signatures": null,
+          "targets": [
+            {
+              "version": "1.2026.265",
+              "versionCodes": {
+                "ARM64_V8A": 2626541,
+                "ARMEABI_V7A": 2626541,
+                "X86_64": 2626541,
+                "X86": 2626541
+              },
+              "isExperimental": true,
+              "minSdk": 32,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    }
+  ]
 }
