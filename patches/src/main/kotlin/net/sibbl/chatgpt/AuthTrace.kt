@@ -28,6 +28,17 @@ internal const val NATIVE_REPOSITORY = "Lcom/openai/feature/onboarding/impl/next
 
 /** Hashes of canonical classes, not APK code. Fail closed on any changed injection target. */
 internal val traceFingerprints = mapOf(
+    "Ld580;" to "115dd7fabc5a4a4b02638c0cb8081a9ea110147db9e257b37bae89dbead29605",
+    "Lnnq0;" to "121a49b0fafeb9034c0d3fd1759e318d1f47210c5d2e2bcd239a56c0844d2c02",
+    "Ligy;" to "455715af9527a0793ad0de9f987fd432173ef2263d4f373026ace586a5ec29bd",
+    "Lnhy;" to "48cb05e123caec84183ec6b8816913aa336216abde380ee01ee99c4317f2b303",
+    "Lfy0;" to "a43bf4de476219092ad1f3f830005fec0faa6e1e086944d81e7ab5b55e59c3aa",
+    "Lh6u;" to "1c39071b792457c940e6722d688aec843be365ba2ded3e750bdc96dc779e438a",
+    "Li6u;" to "84c1a98902ffbd124fbcc6cd315a6639310ccac570fd6c41ea072484d4f9fe41",
+    "Lim40;" to "70dd4fa78419b1a023052221891b570a0a7e94159ca51858a41b4c25fdae2181",
+    "Ljm40;" to "9f56219ff77aad2df5e25f9fdb96bcc897fb793b154bf3e618077cb30ba630b2",
+    "Lre6;" to "8824e363194527bb6c4f19ffe2dc59a82b5c0ef3a37e5d863681b29042f60909",
+    "Lue6;" to "ee141d95cb43b9f9470ebc07bcbebf3553eda6b4738f00d3a318b89fe1551c53",
     "Lu56;" to "46e8801366c465e6cefcbe4d65ca239867d8a28c94bed6fd603a93f46bc6d966",
     "Lofu0;" to "abb195a35f9e9ed705ebaee715b057aa416303c3d122889e413369bf60978dd7",
     "Ly480;" to "8f9abd146862e5322a0737de61185dbfd2c22539e3292c376e4f13ab82d710ab",
@@ -59,26 +70,27 @@ internal val traceErrorTypes = linkedMapOf(
     "Ljava/io/IOException;" to "IO_ERROR"
 )
 internal val traceStatusCodes = listOf(400, 401, 403, 404, 408, 409, 422, 429, 500, 502, 503, 504)
-internal val traceStages = setOf("NATIVE_BEGIN", "NATIVE_STEP", "BROWSER_RESULT", "TOKEN_HTTP", "AUTH_UI")
+internal val traceStages = setOf("NATIVE_BEGIN", "NATIVE_STEP", "BROWSER_RESULT", "TOKEN_HTTP", "AUTH_UI", "NATIVE_TRANSPORT")
 internal val traceFixedEvents = setOf(
-    "NATIVE_PASSWORD_SUBMIT", "NATIVE_BEGIN_ENTER", "NATIVE_STEP_ENTER", "BROWSER_DISPATCH_ENTER",
+    "NATIVE_HTTP_DISPATCH", "NATIVE_PASSWORD_SUBMIT", "NATIVE_BEGIN_ENTER", "NATIVE_STEP_ENTER", "BROWSER_DISPATCH_ENTER",
     "CALLBACK_RECEIVED", "CALLBACK_URI_MISMATCH", "CALLBACK_STATE_MISMATCH", "CALLBACK_REMOTE_ERROR",
     "CALLBACK_CODE_PRESENT", "TOKEN_EXCHANGE_ENTER", "PAGE_PASSWORD", "PAGE_ERROR", "PAGE_OTHER"
 )
-internal val traceAllowedMessages = traceFixedEvents + traceStages.flatMap { stage ->
+internal val traceAllowedMessages = nativeTraceMessages + traceFixedEvents + traceStages.flatMap { stage ->
     (listOf("OK", "FAILURE", "HTTP_OTHER") + traceErrorTypes.values + traceStatusCodes.map { "HTTP_$it" })
         .map { "${stage}_$it" }
 }
 
-private fun logConstant(message: String): String {
+internal fun logConstant(message: String): String {
     require(message in traceAllowedMessages)
     return "const-string v1, \"$message\"\ninvoke-static {v0, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I"
 }
 
 /** Every logging argument is a literal. No text or identifier from the app reaches Log. */
 internal fun traceHelperSmali(owner: String, name: String, kind: String): String {
-    val objectArgument = kind == "PAGE" || kind in traceStages
+    val objectArgument = kind == "PAGE" || kind in traceStages || kind in nativeTraceKinds
     val body = when {
+        kind in nativeTraceKinds -> nativeTraceBody(kind)
         kind == "PAGE" -> """
             instance-of v2, p0, Ljm40;
             if-eqz v2, :page_error
@@ -156,7 +168,7 @@ internal fun traceHelperSmali(owner: String, name: String, kind: String): String
         .class public $owner
         .super Ljava/lang/Object;
         .method public static $TRACE_PREFIX$name(${if (objectArgument) "Ljava/lang/Object;" else ""})V
-        .registers ${if (objectArgument) 5 else 4}
+        .registers ${if (kind in nativeTraceKinds) 10 else if (objectArgument) 5 else 4}
         :trace_start
         const-string v0, "$TRACE_TAG"
         $body
@@ -210,6 +222,33 @@ internal fun BytecodePatchContext.installAuthTrace() {
             m.addInstruction(index, "invoke-static/range {v$register .. v$register}, $ref")
         }
     }
+    // Original native POST coroutine: the single pa80 branch is hash guarded.
+    val request = method("Lfy0;", "invokeSuspend")
+    val requestInstructions = request.implementation!!.instructions.toList()
+    val requestStart = requestInstructions.indices.single {
+        requestInstructions[it].opcode == Opcode.CHECK_CAST &&
+            (requestInstructions[it] as ReferenceInstruction).reference.toString() == "Lpa80;"
+    }
+    val requestReturn = (requestStart until requestInstructions.size).first {
+        requestInstructions[it].opcode == Opcode.RETURN_OBJECT
+    }
+    val dispatch = (requestStart until requestReturn).single {
+        (requestInstructions[it] as? ReferenceInstruction)?.reference.toString() == "Lmhy;->c(Lq7m;)Ljava/lang/Object;"
+    }
+    val responseRegister = (requestInstructions[requestReturn] as OneRegisterInstruction).registerA
+    request.addInstruction(requestReturn, "invoke-static/range {v$responseRegister .. v$responseRegister}, ${helper("Lfy0;", "NATIVE_RAW_HTTP", "NATIVE_RAW_HTTP")}")
+    request.addInstruction(dispatch, "invoke-static {}, ${helper("Lfy0;", "NATIVE_HTTP_DISPATCH", "NATIVE_HTTP_DISPATCH")}")
+
+    val next = method(NATIVE_REPOSITORY, "e")
+    val nextOriginal = next.implementation!!.instructions.toList()
+    val nativeResponse = nextOriginal.indices.single {
+        nextOriginal[it].opcode == Opcode.CHECK_CAST &&
+            (nextOriginal[it] as ReferenceInstruction).reference.toString() == "Le580;"
+    }
+    val nativeRegister = (nextOriginal[nativeResponse] as OneRegisterInstruction).registerA
+    next.addInstruction(nativeResponse + 1, "invoke-static/range {v$nativeRegister .. v$nativeRegister}, ${helper(NATIVE_REPOSITORY, "NATIVE_BEFORE_MAP", "NATIVE_BEFORE_MAP")}")
+    next.addInstruction(nativeResponse + 1, "invoke-static/range {v$nativeRegister .. v$nativeRegister}, ${helper(NATIVE_REPOSITORY, "NATIVE_TRANSPORT", "NATIVE_TRANSPORT")}")
+    returns(NATIVE_REPOSITORY, "e", "NATIVE_AFTER_MAP")
     fixed("Ljd80;", "i", "NATIVE_PASSWORD_SUBMIT")
     returns(NATIVE_REPOSITORY, "a", "NATIVE_BEGIN")
     fixed(NATIVE_REPOSITORY, "a", "NATIVE_BEGIN_ENTER")

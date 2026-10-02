@@ -47,3 +47,5 @@ The upstream plugin requires nonempty repository credential properties even offl
 ```
 
 These values grant no access. Keep `--offline`; a first build still needs dependency setup as described above.
+
+Diagnostic collector checks: `python3 -m unittest discover -s scripts -p 'test_trace*.py'`. The Kotlin tests require the published collector allowlist to equal the complete compiled marker vocabulary. The local pinned-APK tests also resolve every helper field and raw-status getter against the original DEX, and compare all original control flow with tracing enabled/disabled.

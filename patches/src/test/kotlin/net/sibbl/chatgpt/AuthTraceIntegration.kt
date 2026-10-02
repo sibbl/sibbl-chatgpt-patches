@@ -6,6 +6,7 @@ import com.android.tools.smali.dexlib2.iface.Method
 import com.android.tools.smali.dexlib2.iface.instruction.*
 import com.android.tools.smali.dexlib2.iface.instruction.formats.ArrayPayload
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
+import com.android.tools.smali.dexlib2.iface.reference.FieldReference
 import org.junit.jupiter.api.Assertions.*
 
 /** Compare original control flow and operands after removing ONLY our injected calls. */
@@ -68,7 +69,8 @@ internal fun assertTraceIntegration(original: Map<String, ClassDef>, patched: Ma
         "NATIVE_PASSWORD_SUBMIT", "NATIVE_BEGIN", "NATIVE_BEGIN_ENTER", "NATIVE_STEP", "NATIVE_STEP_ENTER",
         "PAGE", "AUTH_UI", "BROWSER_RESULT", "BROWSER_DISPATCH_ENTER", "CALLBACK_RECEIVED",
         "CALLBACK_URI_MISMATCH", "CALLBACK_STATE_MISMATCH", "CALLBACK_REMOTE_ERROR", "CALLBACK_CODE_PRESENT",
-        "TOKEN_HTTP", "TOKEN_EXCHANGE_ENTER"
+        "TOKEN_HTTP", "TOKEN_EXCHANGE_ENTER", "NATIVE_HTTP_DISPATCH", "NATIVE_RAW_HTTP",
+        "NATIVE_BEFORE_MAP", "NATIVE_AFTER_MAP", "NATIVE_TRANSPORT"
     )
     val found = mutableSetOf<String>()
     val called = mutableSetOf<String>()
@@ -81,6 +83,15 @@ internal fun assertTraceIntegration(original: Map<String, ClassDef>, patched: Ma
                 val kind = method.name.removePrefix(TRACE_PREFIX)
                 assertTrue(kind in expectedHelpers)
                 found += kind
+                method.implementation!!.instructions.forEach { instruction ->
+                    val reference = (instruction as? ReferenceInstruction)?.reference
+                    if (reference is FieldReference) {
+                        assertTrue(original.getValue(reference.definingClass).fields.any { it.toString() == reference.toString() }, "Unresolved diagnostic field: $reference")
+                    }
+                    if (reference is MethodReference && reference.definingClass == "Ligy;") {
+                        assertTrue(original.getValue(reference.definingClass).methods.any { it.toString() == reference.toString() }, "Unresolved status getter")
+                    }
+                }
                 val generated = compileTraceHelper(type, kind, kind)
                 assertEquals(normalized(generated), normalized(method), "Unexpected helper bytecode: $kind")
             } else {

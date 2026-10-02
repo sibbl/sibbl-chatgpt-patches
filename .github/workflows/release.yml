@@ -35,7 +35,9 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Verify source-only repository
-        run: python3 scripts/check_source_only.py
+        run: |
+          python3 scripts/check_source_only.py
+          python3 -m unittest discover -s scripts -p 'test_trace*.py'
 
       - name: Test before release
         env:

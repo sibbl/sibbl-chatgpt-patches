@@ -12,18 +12,22 @@ class AuthTraceTest {
     }
 
     @Test fun `every compiled logger accepts only constant allowlisted output and catches its failures`() {
-        val kinds = traceFixedEvents + traceStages + "PAGE"
+        val kinds = traceFixedEvents + traceStages + nativeTraceKinds + "PAGE"
         kinds.forEach { kind ->
             val method = compileTraceHelper("LFixture;", kind, kind)
             val impl = method.implementation!!
             val instructions = impl.instructions.toList()
             val permittedFields = setOf(
                 "Lhnq0;->b:Ljava/lang/Throwable;", "Ly480;->a:Ljava/lang/Throwable;",
-                "Lmnq0;->c:Ljava/lang/Integer;", "Lc580;->b:I"
+                "Lmnq0;->c:Ljava/lang/Integer;", "Lc580;->b:I", "Lnhy;->a:I", "Ld580;->a:Ljava/lang/Object;", "Lnnq0;->b:Ljava/lang/Object;",
+                "Li6u;->c:Lue6;", "Li6u;->b:Lh6u;", "Lh6u;->d:Lue6;",
+                "Ljm40;->c:Lue6;", "Ljm40;->b:Lim40;", "Lim40;->a:Lue6;",
+                "Lue6;->d:Ljava/util/List;", "Lre6;->a:Ljava/lang/String;"
             )
             val permittedCalls = setOf(
                 "Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I",
-                "Ljava/lang/Integer;->intValue()I"
+                "Ljava/lang/Integer;->intValue()I", "Ligy;->f()Lnhy;", "Ljava/util/List;->size()I",
+                "Ljava/util/List;->get(I)Ljava/lang/Object;", "Ljava/lang/String;->equals(Ljava/lang/Object;)Z"
             )
             val addresses = mutableListOf<Int>()
             var address = 0
@@ -37,7 +41,7 @@ class AuthTraceTest {
                 }
                 val reference = (instruction as? ReferenceInstruction)?.reference
                 when (reference) {
-                    is StringReference -> assertTrue(reference.string == TRACE_TAG || reference.string in traceAllowedMessages)
+                    is StringReference -> assertTrue(reference.string == TRACE_TAG || reference.string in traceAllowedMessages || reference.string in nativeCodeCategories)
                     is FieldReference -> assertTrue(reference.toString() in permittedFields)
                     is MethodReference -> {
                         assertTrue(reference.toString() in permittedCalls)

@@ -23,7 +23,7 @@ Beide Apps beanspruchen weiterhin den ursprünglichen Login-Callback. Wenn Andro
 
 ## Optionale Login-Diagnose
 
-Im Callback-Patch gibt es **Diagnostic auth tracing (no secrets)**, standardmäßig **aus**. Aktiviert protokolliert sie unter `SibblAuthTrace` ausschließlich feste Phasen, Fehlerkategorien und ausgewählte HTTP-Statuscodes. Keine Zugangsdaten, Servertexte, Auth-URLs oder Uploads. Diese Veröffentlichung dient der Diagnose und enthält keinen neuen behaupteten Login-Fix. [Aktivierung, Beobachtung und Bedeutung der Marker](docs/diagnostics.md).
+Im Callback-Patch gibt es **Diagnostic auth tracing (no secrets)**, standardmäßig **aus**. Aktiviert protokolliert sie unter `SibblAuthTrace` ausschließlich feste Phasen, Fehlerkategorien, echte native HTTP-Statuscodes sowie Seitentypen vor und nach der Antwortverarbeitung. Strukturierte Fehlercodes werden nur mit einer festen Liste verglichen; unbekannte Werte bleiben `OTHER`. Keine Zugangsdaten, Servertexte, Auth-URLs oder Uploads. Diese Veröffentlichung dient der Diagnose und enthält keinen neuen behaupteten Login-Fix. [Aktivierung, Beobachtung und Bedeutung der Marker](docs/diagnostics.md).
 
 ## Was geändert wird
 
