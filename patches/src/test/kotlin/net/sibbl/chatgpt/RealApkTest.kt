@@ -14,6 +14,8 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable
 import java.io.File
 import java.nio.file.Files
 import java.security.MessageDigest
+import java.util.zip.ZipFile
+import com.android.tools.smali.dexlib2.iface.ClassDef
 import javax.xml.parsers.DocumentBuilderFactory
 import org.w3c.dom.Element
 
@@ -24,6 +26,13 @@ class RealApkTest {
         val input = File(System.getenv("CHATGPT_TEST_APK"))
         val sha = MessageDigest.getInstance("SHA-256").digest(input.readBytes()).joinToString("") { "%02x".format(it) }
         assertEquals("979d758415b99ecf05118bce536b4e5a9eb9ea68ebdf77bbf064a57bb924d771", sha)
+        val originalAuth = mutableMapOf<String, ClassDef>()
+        ZipFile(input).use { zip ->
+            zip.entries().asSequence().filter { it.name.matches(Regex("classes[0-9]*\\.dex")) }.forEach { entry ->
+                val dex = DexBackedDexFile.fromInputStream(null, zip.getInputStream(entry).buffered())
+                dex.classes.filter { it.type in authComparisonTypes }.forEach { originalAuth[it.type] = it }
+            }
+        }
         val temporary = Files.createTempDirectory("sibbl-chatgpt-static-test-").toFile()
         val label = System.getenv("CHATGPT_TEST_APP_NAME") ?: DEFAULT_APP_NAME
         cloneChatGptPatch.options["appName"] = label
@@ -70,8 +79,10 @@ class RealApkTest {
                 assertEquals(androidAppName(label), labelResource.textContent)
                 val result = patcher.get()
                 var patchedMethodFound = false
+                val patchedAuth = mutableMapOf<String, ClassDef>()
                 result.dexFiles.forEach { dex ->
                     val dexFile = DexBackedDexFile.fromInputStream(null, dex.stream.buffered())
+                    dexFile.classes.filter { it.type in authComparisonTypes }.forEach { patchedAuth[it.type] = it }
                     dexFile.classes.firstOrNull { it.type == "Li280;" }?.let { cls ->
                         val method = cls.methods.single { it.name == "invoke" && it.parameterTypes.isEmpty() }
                         val instructions = method.implementation!!.instructions.toList()
@@ -92,6 +103,7 @@ class RealApkTest {
                     }
                 }
                 assertTrue(patchedMethodFound)
+                assertAuthDifferential(originalAuth, patchedAuth)
                 val compiled = result.resources.resourcesApk
                 assertNotNull(compiled)
                 assertTrue(compiled!!.length() > 0)

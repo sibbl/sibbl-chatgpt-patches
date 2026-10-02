@@ -2,7 +2,7 @@
 
 Experimentelle Patches für **Morphe**, um eine zweite ChatGPT-App mit getrennten Appdaten zu testen. Unabhängiges Projekt von sibbl, nicht von OpenAI oder Morphe.
 
-**Status: statisch geprüfter Callback-Fix, noch kein bestätigter Geräte-Login.** Der Nutzer bestätigt inzwischen einen erfolgreichen Patchbuild, beim Login erscheint aber „Incorrect email address or password“. Die Ursache ist offen. Der Patch bewahrt die ursprüngliche OAuth-Redirect-URI. Er deaktiviert weder PKCE/state/nonce noch Play Integrity, Signaturprüfungen oder TLS. Eine mögliche serverseitige Ablehnung wird nicht umgangen.
+**Status: statisch geprüfter Callback-Fix, noch kein bestätigter Geräte-Login.** Der Nutzer bestätigt inzwischen einen erfolgreichen Patchbuild, beim Login erscheint aber „Incorrect email address or password“. Ein frischer E-Mail/Passwort-Login im privaten Browser funktioniert. Die Ursache des App-Fehlers ist offen; siehe [Differentialanalyse](docs/auth-differential.md). Der Patch bewahrt die ursprüngliche OAuth-Redirect-URI. Er deaktiviert weder PKCE/state/nonce noch Play Integrity, Signaturprüfungen oder TLS. Eine mögliche serverseitige Ablehnung wird nicht umgangen.
 
 ## In Morphe testen
 
