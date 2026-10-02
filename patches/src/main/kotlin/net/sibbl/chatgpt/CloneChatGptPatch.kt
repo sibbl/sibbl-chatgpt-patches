@@ -25,7 +25,7 @@ val cloneChatGptPatch = resourcePatch(
             versionCode = CANDIDATE_CODE.toInt(),
             isExperimental = true,
             minSdk = 32,
-            description = "APK statically tested; installation and login remain unverified."
+            description = CANDIDATE_DESCRIPTION
         ))
     ))
     val packageName = stringOption(

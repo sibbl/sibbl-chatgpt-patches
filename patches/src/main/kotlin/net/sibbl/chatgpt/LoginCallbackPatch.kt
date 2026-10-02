@@ -46,12 +46,11 @@ val loginCallbackPatch = bytecodePatch(
     compatibleWith(Compatibility(
         name = "ChatGPT", packageName = ORIGINAL_PACKAGE, apkFileType = ApkFileType.APKM,
         targets = listOf(AppTarget(version = CANDIDATE_VERSION, versionCode = CANDIDATE_CODE.toInt(),
-            isExperimental = true, minSdk = 32))
+            isExperimental = true, minSdk = 32, description = CANDIDATE_DESCRIPTION))
     ))
     dependsOn(cloneChatGptPatch)
     execute {
-        require(packageMetadata.packageName == ORIGINAL_PACKAGE && packageMetadata.versionName == CANDIDATE_VERSION &&
-            packageMetadata.versionCode == CANDIDATE_CODE) { "Unsupported ChatGPT input version." }
+        validateOriginalInput(packageMetadata.packageName, packageMetadata.versionName, packageMetadata.versionCode)
         val method = mutableClassDefBy("Li280;").methods.single {
             it.name == "invoke" && it.parameterTypes.isEmpty() && it.returnType == "Ljava/lang/Object;"
         }

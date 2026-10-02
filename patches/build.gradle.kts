@@ -5,11 +5,11 @@ group = "net.sibbl.chatgpt"
 patches {
     about {
         name = "sibbl ChatGPT patches"
-        description = "Experimental clone baseline; authentication unresolved"
+        description = "Experimental ChatGPT clone and callback preservation; device login unverified"
         source = "https://github.com/sibbl/sibbl-chatgpt-patches"
         author = "sibbl"
-        contact = "na"
-        website = "na"
+        contact = "https://github.com/sibbl/sibbl-chatgpt-patches/issues"
+        website = "https://github.com/sibbl/sibbl-chatgpt-patches"
         license = "GPLv3"
     }
 }

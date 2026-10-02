@@ -6,20 +6,18 @@ Experimentelle Patches für **Morphe**, um eine zweite ChatGPT-App mit getrennte
 
 ## In Morphe testen
 
-Nach dem ersten erfolgreichen **Prerelease** dieses Repositories:
+Die Quelle enthält ausschließlich experimentelle Prereleases. Für den Erstimport unter **Sources → + → Remote** diese Metadaten-URL eintragen und als Namen **sibbl ChatGPT patches** verwenden:
 
-1. [Patchquelle hinzufügen](https://morphe.software/add-source?github=sibbl/sibbl-chatgpt-patches) oder `https://github.com/sibbl/sibbl-chatgpt-patches` als GitHub-Quelle eintragen.
-2. Für diese Quelle **Pre-release patches** und **Experimental app versions** aktivieren und die Quelle aktualisieren. Bei Bedarf Expert-Modus verwenden (beide Patches sind standardmäßig abgewählt).
-3. Original **ChatGPT 1.2026.265 (2626541)** als APKM auswählen. Das untersuchte Universal-Bundle benötigt Android 12L/API 32 oder neuer. Morphe wählt/vereinigt passende Splits; eine isolierte `base.apk` ist keine vollständige Installationsdatei.
+`https://raw.githubusercontent.com/sibbl/sibbl-chatgpt-patches/refs/heads/dev/patches-bundle.json`
+
+1. Die oben genannte Remote-Quelle hinzufügen. Sie bleibt ausdrücklich auf dem experimentellen `dev`-Zweig.
+2. **Experimental app versions** aktivieren und die Quelle aktualisieren. Die direkte `dev`-Quelle braucht keinen Prerelease-Umschalter. Bei Bedarf Expert-Modus verwenden (beide Patches sind standardmäßig abgewählt).
+3. Die heruntergeladene Original-APKM **ChatGPT 1.2026.265 (versionCode 2626541)** über die Dateiauswahl auswählen — eine neuere installierte ChatGPT-App ist kein unterstützter Eingang. [Passenden Download auf APKMirror öffnen](https://www.apkmirror.com/apk/openai/chatgpt/chatgpt-1-2026-265-release/chatgpt-1-2026-265-7-android-apk-download/). Auch andere Varianten mit demselben Versionsnamen, etwa Code 2626526 oder 2626527, sind nicht freigegeben. Das untersuchte Universal-Bundle benötigt Android 12L/API 32 oder neuer. Morphe wählt/vereinigt passende Splits; eine isolierte `base.apk` ist keine vollständige Installationsdatei.
 4. **Preserve ChatGPT login callback (experimental)** wählen. Dessen Abhängigkeit enthält die Clone-Basis. Den universellen **Clone app**-Patch nicht zusätzlich wählen.
 5. Paketname standardmäßig `app.sibbl.chatgpt.private`. **Update permissions = true** und **Update providers = true** sind Pflicht und standardmäßig aktiviert; Abschalten führt zum Abbruch.
 6. APK in Morphe bauen und selbst auf dem Gerät testen. Ein vorhandener Klon unter einem anderen Namen wird dadurch nicht aktualisiert. Original `com.openai.chatgpt` und seine Daten werden nicht ersetzt.
 
-Falls der Erstimport der Repository-Quelle wegen eines noch fehlenden Stable-Releases scheitert, unter **Sources → + → Remote** diese direkt an den Entwicklungszweig gebundene Metadaten-URL verwenden:
-
-`https://raw.githubusercontent.com/sibbl/sibbl-chatgpt-patches/refs/heads/dev/patches-bundle.json`
-
-Diese Quelle folgt immer den experimentellen dev-Releases. Alternativ die `.mpp` vom neuesten [Prerelease](https://github.com/sibbl/sibbl-chatgpt-patches/releases) als lokale Quelle importieren und im Expert-Modus die bereitgestellte APKM auswählen. Der Repository-Add-source-Link bleibt der reguläre Weg mit getrenntem Prerelease-Schalter.
+Alternativ die `.mpp` vom neuesten [Prerelease](https://github.com/sibbl/sibbl-chatgpt-patches/releases) als lokale Quelle importieren. Der reguläre [GitHub-Add-source-Link mit Quellennamen](https://morphe.software/add-source?github=sibbl/sibbl-chatgpt-patches&name=sibbl%20ChatGPT%20patches) verwendet den separaten **Pre-release patches**-Schalter: Ohne ihn lädt Morphe `main`, wo noch kein Stable-Release verfügbar ist. Der direkte `refs/heads/dev`-Link verhindert diese Umschaltung und eignet sich deshalb für den Erstimport. Die GitHub-Repository-Beschreibung ist vorhanden; Morphe bezieht den Bundle-Namen aus dem `.mpp`-Manifest. Ohne Geräteansicht ist die konkrete Ursache einer unvollständigen Anzeige noch nicht bestätigt.
 
 Beide Apps beanspruchen weiterhin den ursprünglichen Login-Callback. Wenn Android eine Appauswahl zeigt, den **Klon** wählen. Callback-Routing, Browser/Auth Tab, Integritätsprüfung und vollständiger Login sind noch auf dem Gerät zu prüfen. Bitte nur Fehlerphase (vor Browser / im Browser / nach Rückkehr), Android-/Browser-Version und Fehlermeldung melden — keine Auth-URLs mit Parametern, Tokens oder Rohlogs veröffentlichen.
 

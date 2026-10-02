@@ -63,6 +63,21 @@ class CloneManifestTest {
         assertThrows(IllegalArgumentException::class.java) { valid(providers = false) }
     }
 
+    @Test fun `unsupported input error identifies actual and supported versions`() {
+        // Synthetic code: the device report only identified the version name.
+        val error = assertThrows(IllegalArgumentException::class.java) {
+            validateOriginalInput(ORIGINAL_PACKAGE, "1.2026.272", "2720000")
+        }
+        val message = requireNotNull(error.message)
+        assertTrue(message.contains("com.openai.chatgpt 1.2026.272 (versionCode 2720000)"))
+        assertTrue(message.contains("com.openai.chatgpt 1.2026.265 (versionCode 2626541)"))
+        assertTrue(message.contains("Select the downloaded APKM file"))
+        val sameVersion = assertThrows(IllegalArgumentException::class.java) {
+            validateOriginalInput(ORIGINAL_PACKAGE, CANDIDATE_VERSION, "2626526")
+        }
+        assertTrue(requireNotNull(sameVersion.message).contains("1.2026.265 (versionCode 2626526)"))
+    }
+
     @Test fun `rejects already cloned input`() {
         val manifest = xml(fixture)
         cloneManifest(manifest, CLONE_PACKAGE)

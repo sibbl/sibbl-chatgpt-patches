@@ -37,12 +37,24 @@ internal const val CLONE_PACKAGE = "app.sibbl.chatgpt.private"
 internal const val CANDIDATE_VERSION = "1.2026.265"
 internal const val CANDIDATE_CODE = "2626541"
 
+internal const val CANDIDATE_DOWNLOAD_URL =
+    "https://www.apkmirror.com/apk/openai/chatgpt/chatgpt-1-2026-265-release/chatgpt-1-2026-265-7-android-apk-download/"
+internal const val CANDIDATE_DESCRIPTION =
+    "Only versionCode 2626541. Download APKM: $CANDIDATE_DOWNLOAD_URL " +
+        "APK statically tested; installation and login remain unverified."
+
+internal fun validateOriginalInput(packageName: String, version: String, code: String) {
+    require(packageName == ORIGINAL_PACKAGE && version == CANDIDATE_VERSION && code == CANDIDATE_CODE) {
+        "Unsupported ChatGPT input: $packageName $version (versionCode $code). " +
+            "Supported input: $ORIGINAL_PACKAGE $CANDIDATE_VERSION (versionCode $CANDIDATE_CODE). " +
+            "Select the downloaded APKM file in Morphe instead of a newer installed app. " +
+            "Other versions and version codes require separate analysis; login remains unverified."
+    }
+}
+
 internal fun validateInput(packageName: String, version: String, code: String,
                            replacement: String, permissions: Boolean, providers: Boolean) {
-    require(packageName == ORIGINAL_PACKAGE) { "Only the original com.openai.chatgpt input is accepted." }
-    require(version == CANDIDATE_VERSION && code == CANDIDATE_CODE) {
-        "Experimental baseline is restricted to 1.2026.265 (2626541); this is not a login compatibility claim."
-    }
+    validateOriginalInput(packageName, version, code)
     require(replacement != ORIGINAL_PACKAGE && replacement.matches(Regex("^[a-z]\\w*(\\.[a-z]\\w*)+$"))) {
         "Choose a valid package name different from the original."
     }
