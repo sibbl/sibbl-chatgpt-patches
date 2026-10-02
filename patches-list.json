@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0-dev.2",
+  "version": "1.0.0-dev.3",
   "patches": [
     {
       "name": "Clone ChatGPT (experimental baseline)",
@@ -27,7 +27,7 @@
               },
               "isExperimental": true,
               "minSdk": 32,
-              "description": "APK statically tested; installation and login remain unverified."
+              "description": "Only versionCode 2626541. Download APKM: https://www.apkmirror.com/apk/openai/chatgpt/chatgpt-1-2026-265-release/chatgpt-1-2026-265-7-android-apk-download/ APK statically tested; installation and login remain unverified."
             }
           ]
         }
@@ -89,7 +89,7 @@
               },
               "isExperimental": true,
               "minSdk": 32,
-              "description": null
+              "description": "Only versionCode 2626541. Download APKM: https://www.apkmirror.com/apk/openai/chatgpt/chatgpt-1-2026-265-release/chatgpt-1-2026-265-7-android-apk-download/ APK statically tested; installation and login remain unverified."
             }
           ]
         }

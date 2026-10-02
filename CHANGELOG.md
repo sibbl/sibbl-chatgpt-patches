@@ -1,3 +1,9 @@
+## [1.0.0-dev.3](https://github.com/sibbl/sibbl-chatgpt-patches/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2026-10-02)
+
+### 🐛 Bug Fixes
+
+* clarify supported APK input and experimental source setup ([f087896](https://github.com/sibbl/sibbl-chatgpt-patches/commit/f087896a53d7f21dcd46c0fe1a30da379cc75858))
+
 ## [1.0.0-dev.2](https://github.com/sibbl/sibbl-chatgpt-patches/compare/v1.0.0-dev.1...v1.0.0-dev.2) (2026-10-02)
 
 ### 🐛 Bug Fixes

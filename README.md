@@ -31,7 +31,7 @@ Beide Apps beanspruchen weiterhin den ursprünglichen Login-Callback. Wenn Andro
 Der optionale Patch **Clone ChatGPT (experimental baseline)** allein dient nur dem Vergleich und enthält den Callback-Fix nicht.
 
 <!-- PATCHES_START -->
-> **[v1.0.0-dev.2](https://github.com/sibbl/sibbl-chatgpt-patches/releases/tag/v1.0.0-dev.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
+> **[v1.0.0-dev.3](https://github.com/sibbl/sibbl-chatgpt-patches/releases/tag/v1.0.0-dev.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
 <details open>
 <summary>📦 ChatGPT&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -40,7 +40,7 @@ Der optionale Patch **Clone ChatGPT (experimental baseline)** allein dient nur d
 
 | 🧪&nbsp;1.2026.265 |
 | :---: |
-| APK statically tested; installation and login remain unverified. |
+| Only versionCode 2626541. Download APKM: https://www.apkmirror.com/apk/openai/chatgpt/chatgpt-1-2026-265-release/chatgpt-1-2026-265-7-android-apk-download/ APK statically tested; installation and login remain unverified. |
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
