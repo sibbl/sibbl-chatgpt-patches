@@ -116,6 +116,37 @@ class NativeResponseTraceTest {
         }
     }
 
+    @Test fun `fresh and resumed response branches both reach the diagnostic helper`() {
+        val method = compileTraceMethod("""
+            .class public LFixture;
+            .super Ljava/lang/Object;
+            .method public static response(Ljava/lang/Object;Z)Ljava/lang/Object;
+            .registers 3
+            if-eqz p1, :fresh
+            goto :response
+            :fresh
+            nop
+            :response
+            return-object p0
+            .end method
+        """.trimIndent())
+        val original = method.implementation!!.instructions.toList()
+        val returnIndex = original.indexOfFirst { it.opcode == Opcode.RETURN_OBJECT }
+        insertTraceAtReturn(method, returnIndex, "LFixture;->morpheTrace_Native(Ljava/lang/Object;)V")
+        val instructions = method.implementation!!.instructions.toList()
+        val addresses = mutableListOf<Int>(); var address = 0
+        instructions.forEach { addresses += address; address += it.codeUnits }
+        val branch = instructions.indexOfFirst { it.opcode == Opcode.GOTO }
+        val target = addresses.indexOf(addresses[branch] + (instructions[branch] as OffsetInstruction).codeOffset)
+        assertEquals(returnIndex, target)
+        assertEquals(Opcode.INVOKE_STATIC_RANGE, instructions[target].opcode)
+        assertEquals(Opcode.NOP, instructions[target - 1].opcode)
+        assertEquals(Opcode.RETURN_OBJECT, instructions[target + 1].opcode)
+        assertEquals((original[returnIndex] as OneRegisterInstruction).registerA,
+            (instructions[target + 1] as OneRegisterInstruction).registerA)
+        assertEquals(3, method.implementation!!.registerCount)
+    }
+
     @Test fun `published collector allowlist exactly matches compiled diagnostic vocabulary`() {
         val file = sequenceOf(File("scripts/trace-allowlist.txt"), File("../scripts/trace-allowlist.txt")).first { it.exists() }
         assertEquals(traceAllowedMessages.toSet(), file.readLines().filter { it.isNotBlank() }.toSet())

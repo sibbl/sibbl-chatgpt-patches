@@ -98,6 +98,32 @@ internal fun assertTraceIntegration(original: Map<String, ClassDef>, patched: Ma
                 val old = originals.getValue(method.toString())
                 assertEquals(old.implementation?.registerCount, method.implementation?.registerCount)
                 assertEquals(normalized(old), normalized(method), "Original operands/control flow changed: $method")
+                if (type == "Lfy0;" && method.name == "invokeSuspend") {
+                    val beforeCode = old.implementation!!.instructions.toList()
+                    val afterCode = method.implementation!!.instructions.toList()
+                    fun addresses(code: List<Instruction>): List<Int> {
+                        var address = 0
+                        return code.map { i -> address.also { address += i.codeUnits } }
+                    }
+                    val beforeAddresses = addresses(beforeCode)
+                    val afterAddresses = addresses(afterCode)
+                    val start = beforeCode.indices.single {
+                        beforeCode[it].opcode == Opcode.CHECK_CAST &&
+                            (beforeCode[it] as ReferenceInstruction).reference.toString() == "Lpa80;"
+                    }
+                    val originalReturn = (start until beforeCode.size).first { beforeCode[it].opcode == Opcode.RETURN_OBJECT }
+                    val rawHook = afterCode.indices.single {
+                        ((afterCode[it] as? ReferenceInstruction)?.reference as? MethodReference)?.name == TRACE_PREFIX + "NATIVE_RAW_HTTP"
+                    }
+                    fun incoming(code: List<Instruction>, offsets: List<Int>, target: Int): Int = code.indices.count {
+                        val branch = code[it] as? OffsetInstruction
+                        branch != null && offsets[it] + branch.codeOffset == offsets[target]
+                    }
+                    val originalIncoming = incoming(beforeCode, beforeAddresses, originalReturn)
+                    assertTrue(originalIncoming > 0, "Pinned response must have an incoming resumption branch")
+                    assertEquals(originalIncoming, incoming(afterCode, afterAddresses, rawHook), "Resumption must reach the raw-status helper")
+                    assertEquals(Opcode.RETURN_OBJECT, afterCode[rawHook + 1].opcode)
+                }
                 method.implementation?.instructions?.forEach { i ->
                     val ref = (i as? ReferenceInstruction)?.reference as? MethodReference
                     if (ref?.name?.startsWith(TRACE_PREFIX) == true) {

@@ -2,6 +2,7 @@
 package net.sibbl.chatgpt
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
+import app.morphe.patcher.extensions.InstructionExtensions.replaceInstruction
 import app.morphe.patcher.patch.BytecodePatchContext
 import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
 import com.android.tools.smali.dexlib2.Opcode
@@ -183,8 +184,11 @@ internal fun traceHelperSmali(owner: String, name: String, kind: String): String
     """.trimIndent()
 }
 
-internal fun compileTraceHelper(owner: String, name: String, kind: String): MutableMethod {
-    val lexer = smaliFlexLexer(StringReader(traceHelperSmali(owner, name, kind)), 35)
+internal fun compileTraceHelper(owner: String, name: String, kind: String): MutableMethod =
+    compileTraceMethod(traceHelperSmali(owner, name, kind))
+
+internal fun compileTraceMethod(smali: String): MutableMethod {
+    val lexer = smaliFlexLexer(StringReader(smali), 35)
     val tokens = CommonTokenStream(lexer)
     val parser = smaliParser(tokens)
     val result = parser.smali_file()
@@ -195,6 +199,15 @@ internal fun compileTraceHelper(owner: String, name: String, kind: String): Muta
     val cls = walker.smali_file()
     check(walker.numberOfSyntaxErrors == 0)
     return MutableMethod(cls.methods.single())
+}
+
+/** Preserve incoming labels on the helper so resumed completion cannot jump past tracing. */
+internal fun insertTraceAtReturn(method: MutableMethod, index: Int, helper: String) {
+    val instruction = method.implementation!!.instructions[index]
+    require(instruction.opcode == Opcode.RETURN_OBJECT)
+    val register = (instruction as OneRegisterInstruction).registerA
+    method.replaceInstruction(index, "invoke-static/range {v$register .. v$register}, $helper")
+    method.addInstruction(index + 1, "return-object v$register")
 }
 
 internal fun BytecodePatchContext.installAuthTrace() {
@@ -235,8 +248,7 @@ internal fun BytecodePatchContext.installAuthTrace() {
     val dispatch = (requestStart until requestReturn).single {
         (requestInstructions[it] as? ReferenceInstruction)?.reference.toString() == "Lmhy;->c(Lq7m;)Ljava/lang/Object;"
     }
-    val responseRegister = (requestInstructions[requestReturn] as OneRegisterInstruction).registerA
-    request.addInstruction(requestReturn, "invoke-static/range {v$responseRegister .. v$responseRegister}, ${helper("Lfy0;", "NATIVE_RAW_HTTP", "NATIVE_RAW_HTTP")}")
+    insertTraceAtReturn(request, requestReturn, helper("Lfy0;", "NATIVE_RAW_HTTP", "NATIVE_RAW_HTTP"))
     request.addInstruction(dispatch, "invoke-static {}, ${helper("Lfy0;", "NATIVE_HTTP_DISPATCH", "NATIVE_HTTP_DISPATCH")}")
 
     val next = method(NATIVE_REPOSITORY, "e")
