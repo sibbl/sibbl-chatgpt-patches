@@ -15,6 +15,12 @@ Nach dem ersten erfolgreichen **Prerelease** dieses Repositories:
 5. Paketname standardmäßig `app.sibbl.chatgpt.private`. **Update permissions = true** und **Update providers = true** sind Pflicht und standardmäßig aktiviert; Abschalten führt zum Abbruch.
 6. APK in Morphe bauen und selbst auf dem Gerät testen. Ein vorhandener Klon unter einem anderen Namen wird dadurch nicht aktualisiert. Original `com.openai.chatgpt` und seine Daten werden nicht ersetzt.
 
+Falls der Erstimport der Repository-Quelle wegen eines noch fehlenden Stable-Releases scheitert, unter **Sources → + → Remote** diese direkt an den Entwicklungszweig gebundene Metadaten-URL verwenden:
+
+`https://raw.githubusercontent.com/sibbl/sibbl-chatgpt-patches/refs/heads/dev/patches-bundle.json`
+
+Diese Quelle folgt immer den experimentellen dev-Releases. Alternativ die `.mpp` vom neuesten [Prerelease](https://github.com/sibbl/sibbl-chatgpt-patches/releases) als lokale Quelle importieren und im Expert-Modus die bereitgestellte APKM auswählen. Der Repository-Add-source-Link bleibt der reguläre Weg mit getrenntem Prerelease-Schalter.
+
 Beide Apps beanspruchen weiterhin den ursprünglichen Login-Callback. Wenn Android eine Appauswahl zeigt, den **Klon** wählen. Callback-Routing, Browser/Auth Tab, Integritätsprüfung und vollständiger Login sind noch auf dem Gerät zu prüfen. Bitte nur Fehlerphase (vor Browser / im Browser / nach Rückkehr), Android-/Browser-Version und Fehlermeldung melden — keine Auth-URLs mit Parametern, Tokens oder Rohlogs veröffentlichen.
 
 ## Was geändert wird

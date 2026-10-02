@@ -20,7 +20,7 @@ For CI this variable is absent, so the proprietary-APK test is skipped explicitl
 
 ## Distribution
 
-The release.yml/.releaserc pipeline is adapted from the official template. Changes: Actions pinned to verified commit IDs; Node 24; locked npm install without lifecycle scripts; explicit source-only check and tests before release; independent project identity; unused automatic PR workflow and example extension removed. Both GPL notices are bundled under licenses/ (the upstream plugin excludes META-INF notices).
+The release.yml/.releaserc pipeline is adapted from the official template. Changes: Actions pinned to verified commit IDs; Node 24; locked npm install without lifecycle scripts; explicit source-only check, tests and a clean build directory before release; independent project identity; unused automatic PR workflow and example extension removed. Both GPL notices are bundled under licenses/ (the upstream plugin excludes META-INF notices).
 
 The template changelog dependency is pinned to its existing lockfile commit. Gradle wrapper verifies the distribution SHA256. Dependencies are ordinary build tools; no custom network/auth endpoint or account secret is added.
 
@@ -35,3 +35,5 @@ Do not relax version guards from a version-name match alone. Verify the new bina
 ## Release dependency audit (2026-10-02)
 
 Locked dependencies were installed with lifecycle scripts disabled. npm audit reported three findings (two high, one moderate) in dependencies bundled inside npm 11.21.0, pulled in by semantic-release's default npm plugin: brace-expansion, undici and ip-address. No compatible npm 11 update was available; audit fix could not change bundled dependencies. This project's explicit plugin list does not enable @semantic-release/npm and publishes no npm package. These tools are not included in the .mpp or target app. The remaining audit findings are tracked here rather than described as resolved. Recheck before future releases.
+
+Release v1.0.0-dev.1 initially also included a stale preflight `patches-1.0.0.mpp` beside the correctly versioned artifact. Its official metadata pointed to the correct dev bundle. The workflow now cleans the preflight output before semantic release to ensure later releases contain only their matching version; use the newest prerelease.

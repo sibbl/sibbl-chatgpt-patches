@@ -40,7 +40,7 @@ jobs:
       - name: Test before release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :patches:test :patches:buildAndroid --no-daemon
+        run: ./gradlew :patches:test :patches:buildAndroid clean --no-daemon
 
       # Semantic release runs its own Gradle build command.
       # Only dev and main branch will generate a release as specified by .releaserc
