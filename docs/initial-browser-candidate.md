@@ -1,6 +1,6 @@
-# Initial browser route candidate — local only
+# Initial browser route candidate — experimental prerelease
 
-This is a reviewable, default-off candidate on `investigate/browser-route-contract`. It is **not published and is not included in the released v1.0.0-dev.7 bundle**. Its purpose is explicit selection of the client's existing complete generic web login route before native authorization. It does not resolve or reinterpret a native password rejection. No device login, installation or runtime acceptance is claimed.
+This is a reviewable, default-off candidate distributed through the experimental `dev` release workflow. **v1.0.0-dev.7 does not contain this option; update the source before testing.** Its purpose is explicit selection of the client's existing complete generic web login route before native authorization. It does not resolve or reinterpret a native password rejection. No device login, installation or runtime acceptance is claimed.
 
 ## Option and exact scope
 
@@ -33,10 +33,12 @@ The verification runs against the private pinned APK without executing app code:
 
 ## Remaining limits
 
-Email/password acceptance on the hosted page, clone signing/integrity acceptance, callback return to this clone and completed session storage still require a separately authorized runtime test. The general OpenAI web configuration is distinct from Google's; it does not guarantee which controls a live hosted page offers. Server/preflight failure continues to propagate.
+Email/password acceptance on the hosted page, clone signing/integrity acceptance, callback return to this clone and completed session storage still require a manual device test by the user. No credentials are requested or entered by the development tools. The general OpenAI web configuration is distinct from Google's; it does not guarantee which controls a live hosted page offers. Server/preflight failure continues to propagate.
 
 The fallback custom-scheme callback shares its initial Android filter with the original app. The Auth Tab redirect scheme and callback validators are unchanged. This candidate does not claim to resolve that fallback's app-selection ambiguity. Existing diagnostics remain fixed-category and unchanged; no new trace events, account data or captured URLs are added.
 
-No test is requested tonight. This branch contains only patch source, tests and documentation. No APK, decompiled method body, raw log, token, signing secret, workflow secret or executable release is committed or uploaded. Release metadata, workflows and the remote branch remain unchanged.
+Source history contains only patch source, tests and documentation. The existing authorized workflow publishes only the project patch bundle and generates matching Morphe metadata. No full APK, decompiled method body, raw log, token, signing secret or workflow secret is committed or uploaded. The development tools do not install, start or log into an app.
+
+For the manual device test, refresh the `dev` source, select **Preserve ChatGPT login callback (experimental)**, enable **Prefer browser for initial email login (experimental)**, and keep **Update permissions** and **Update providers** enabled. Use the pinned APKM and the same clone package/signing key when updating an existing clone. Start with the generic login action on the original welcome screen; other sources intentionally preserve their existing route. Report only browser opening, availability of email/password, callback destination and visible error category. Do not publish credential values, authorization URLs, tokens or raw logs.
 
 Local validation completed: **24 Kotlin tests** passed with no failures or skips, including all four pinned-APK/resource-recompiling configurations and the compiled-bytecode matrix; **11 Python tests** passed; `:patches:buildAndroid` succeeded offline. These results validate static patch behavior and buildability, not a live login.

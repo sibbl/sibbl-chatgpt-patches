@@ -10,7 +10,7 @@ Use JDK 21. The official Gradle plugin resolves Patcher and smali from GitHub Pa
 
 ## Optional real-APK static integration test
 
-Keep the APK outside the checkout. Set `CHATGPT_TEST_APK` to the extracted **base.apk** from the exact bundle in provenance.md, then run the same build command. The tests exercise diagnostic tracing both disabled and enabled. They verify helper privacy constraints and preservation of original instruction operands, control flow, registers and exception boundaries. The test verifies the base SHA256, applies the real patches, recompiles resources, rereads output DEX and asserts the two callback overrides while the third package read remains dynamic. Temporary output remains in an OS temporary directory; the test never installs, launches, signs or uploads an APK.
+Keep the APK outside the checkout. Set `CHATGPT_TEST_APK` to the extracted **base.apk** from the exact bundle in provenance.md, then run the same build command. The tests exercise all four combinations of diagnostic tracing and the default-off initial browser preference. They verify helper privacy constraints and preservation of original instruction operands, control flow, registers and exception boundaries. The test verifies the base SHA256, applies the real patches, recompiles resources, rereads output DEX and asserts the two callback overrides while the third package read remains dynamic. Temporary output remains in an OS temporary directory; the test never installs, launches, signs or uploads an APK.
 
 ```sh
 CHATGPT_TEST_APK=/absolute/private/path/base.apk ./gradlew :patches:test :patches:buildAndroid --rerun-tasks
@@ -32,9 +32,15 @@ Before any push, run `python3 scripts/check_source_only.py` after staging. It re
 
 Do not relax version guards from a version-name match alone. Verify the new binary hash, signer, versionCode, request constructor and final manifest. Recheck all callback paths, PKCE/state behavior and provider/permission references. Extend the exact fingerprint and real-APK test only from evidence. Never spoof Integrity verdicts or discard authentication checks to make a test appear successful.
 
-## Release dependency audit (2026-10-02)
+## Release dependency audit (2026-10-03)
 
-Locked dependencies were installed with lifecycle scripts disabled. npm audit reported three findings (two high, one moderate) in dependencies bundled inside npm 11.21.0, pulled in by semantic-release's default npm plugin: brace-expansion, undici and ip-address. No compatible npm 11 update was available; audit fix could not change bundled dependencies. This project's explicit plugin list does not enable @semantic-release/npm and publishes no npm package. These tools are not included in the .mpp or target app. The remaining audit findings are tracked here rather than described as resolved. Recheck before future releases.
+Locked dependencies were installed with lifecycle scripts disabled. The new registry audit reports **36 affected package entries (35 high, one moderate, zero critical)** from 12 distinct advisories. Compatible-only `npm audit fix --ignore-scripts` left dependency versions and the findings unchanged; no forced downgrade or incompatible dependency replacement was applied. The audited release engine is semantic-release 25.0.9, with micromatch 4.0.8 / braces 3.0.3 and bundled npm 11.21.0. Registry checks found no newer compatible release of those packages at this check.
+
+- Most entries propagate findings in npm's bundled brace-expansion, http-cache-semantics, ip-address and undici through their dependents. The project's explicit plugin list does not enable @semantic-release/npm and publishes no npm package. Those bundled packages have upstream advisory fixes, but the installed npm bundle was not changed by a compatible audit fix. These findings remain open; they are not described as resolved.
+- The additional [braces stack-exhaustion advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) affects the installed latest braces 3.0.3. Its release-tool use matches repository-controlled branch/asset patterns. This workflow does not accept external patterns or process user app/auth data through that matcher. No patched compatible braces version was available at this check.
+- The release job runs in a fresh GitHub Actions workspace, uses the built-in repository-scoped token, disables install scripts and uses a pinned changelog dependency. All audited npm packages are build/release tools; none is included in the .mpp or target app. No new secrets or workflow permissions were introduced for the browser candidate.
+
+The bounded release use was reviewed before publication. Recheck the advisories before later releases and update compatible fixes when available. The increased audit count is not evidence of an authentication issue or a device login result.
 
 Release v1.0.0-dev.1 initially also included a stale preflight `patches-1.0.0.mpp` beside the correctly versioned artifact. Its official metadata pointed to the correct dev bundle. The workflow now cleans the preflight output before semantic release to ensure later releases contain only their matching version; use the newest prerelease.
 

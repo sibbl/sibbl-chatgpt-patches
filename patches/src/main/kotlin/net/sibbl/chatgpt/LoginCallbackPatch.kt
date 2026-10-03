@@ -41,7 +41,7 @@ internal fun callbackReads(method: Method): List<Int> {
 val loginCallbackPatch = bytecodePatch(
     name = "Preserve ChatGPT login callback (experimental)",
     description = "Keeps the original OAuth redirect URI when cloning. Includes the clone baseline. " +
-        "Login and server acceptance remain unverified. Optional default-off auth diagnostics log fixed categories only.",
+        "Login and server acceptance remain unverified. Optional default-off initial browser route and fixed-category auth diagnostics.",
     default = false
 ) {
     compatibleWith(Compatibility(
