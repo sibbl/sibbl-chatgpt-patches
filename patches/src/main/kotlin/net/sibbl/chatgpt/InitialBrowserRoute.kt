@@ -30,7 +30,10 @@ internal fun browserHelperSmali() = """
     sget-object v0, Lub6;->e:Lub6;
     if-ne p0, v0, :original
     sget-object v0, Lfa6;->e:Lfa6;
+    if-eq p4, v0, :initial_source
+    sget-object v0, Lfa6;->b:Lfa6;
     if-ne p4, v0, :original
+    :initial_source
     if-eqz p3, :original
     iget-object v0, p3, Lyj40;->c:Ljava/lang/String;
     if-nez v0, :original

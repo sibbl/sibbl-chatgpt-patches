@@ -7,8 +7,12 @@ import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 
 internal const val ROUTE_TRACE_PARAMETERS = "Lec6;Lxgx;ZLyj40;Lfa6;"
 internal val routeTraceKinds = setOf("ROUTE_SELECTION_ON", "ROUTE_SELECTION_OFF")
-internal val routeTraceSources = linkedMapOf("e" to "WELCOME", "c" to "LOGIN_MENU", "d" to "LANDING")
-internal val routeTraceMessages = (listOf("ENTRY", "PREFERENCE_ON", "PREFERENCE_OFF", "SOURCE_OTHER",
+internal val routeTraceSources = linkedMapOf(
+    "e" to "WELCOME", "c" to "LOGIN_MENU", "d" to "LANDING", "b" to "MODAL",
+    "f" to "ACCOUNT_SELECTOR", "g" to "RETRIGGER_SSO", "h" to "MFA_SETTING",
+    "i" to "DEEPLINK", "j" to "BEACON_UPSELL"
+)
+internal val routeTraceMessages = (listOf("ENTRY", "PREFERENCE_ON", "PREFERENCE_OFF", "SOURCE_OTHER", "SOURCE_NONE",
     "REJECT_CREDENTIAL", "REJECT_SILENT", "REJECT_PROVIDER", "REJECT_SOURCE", "REJECT_SCOPE_ABSENT",
     "REJECT_REAUTH", "MATCH_PREFERENCE_ON", "MATCH_PREFERENCE_OFF") +
     routeTraceSources.values.map { "SOURCE_$it" }).map { "ROUTE_$it" }.toSet()
@@ -19,12 +23,14 @@ internal fun routeTraceBody(kind: String): String = buildString {
     val preference = if (kind == "ROUTE_SELECTION_ON") "ON" else "OFF"
     append(logConstant("ROUTE_ENTRY"))
     append("\n" + logConstant("ROUTE_PREFERENCE_$preference") + "\n")
+    append("if-eqz p4, :source_none\n")
     routeTraceSources.forEach { (field, category) ->
         append("sget-object v2, Lfa6;->$field:Lfa6;\nif-ne p4, v2, :source_next_$field\n")
         append(logConstant("ROUTE_SOURCE_$category"))
         append("\ngoto :guards\n:source_next_$field\n")
     }
     append(logConstant("ROUTE_SOURCE_OTHER"))
+    append("\ngoto :guards\n:source_none\n" + logConstant("ROUTE_SOURCE_NONE") + "\n")
     append("""
         :guards
         if-nez p1, :credential
@@ -32,7 +38,10 @@ internal fun routeTraceBody(kind: String): String = buildString {
         sget-object v2, Lub6;->e:Lub6;
         if-ne p0, v2, :provider
         sget-object v2, Lfa6;->e:Lfa6;
+        if-eq p4, v2, :initial_source
+        sget-object v2, Lfa6;->b:Lfa6;
         if-ne p4, v2, :source
+        :initial_source
         if-eqz p3, :scope
         iget-object v2, p3, Lyj40;->c:Ljava/lang/String;
         if-nez v2, :reauth

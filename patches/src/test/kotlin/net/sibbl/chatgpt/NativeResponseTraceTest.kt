@@ -40,6 +40,7 @@ class NativeResponseTraceTest {
                     Opcode.MOVE_RESULT, Opcode.MOVE_RESULT_OBJECT -> regs[a] = returned
                     Opcode.IF_EQZ -> if (zero(regs[a])) jump()
                     Opcode.IF_NEZ -> if (!zero(regs[a])) jump()
+                    Opcode.IF_EQ -> if (regs[a] == regs[b]) jump()
                     Opcode.IF_NE -> if (regs[a] != regs[b]) jump()
                     Opcode.IF_GE -> if ((regs[a] as Int) >= (regs[b] as Int)) jump()
                     Opcode.IF_LT -> if ((regs[a] as Int) < (regs[b] as Int)) jump()
@@ -167,7 +168,7 @@ class NativeResponseTraceTest {
 
     @Test fun `route guards use enums only and preserve every argument across both preferences`() {
         for (kind in routeTraceKinds) for (provider in listOf("Lub6;->e:Lub6;", "Lvb6;->e:Lvb6;", null))
-            for (source in listOf("Lfa6;->e:Lfa6;", "Lfa6;->c:Lfa6;", "Lfa6;->d:Lfa6;", "Lfa6;->f:Lfa6;", null))
+            for (source in routeTraceSources.keys.map { "Lfa6;->$it:Lfa6;" } + null)
                 for (credential in listOf(null, Obj("Lxgx;"))) for (silent in listOf(0, 1))
                     for (scope in listOf(null, Obj("Lyj40;", mapOf("c" to null)), Obj("Lyj40;", mapOf("c" to "private binding")))) {
                         val arguments = listOf(provider, credential, silent, scope, source)
@@ -178,7 +179,7 @@ class NativeResponseTraceTest {
                             credential != null -> "REJECT_CREDENTIAL"
                             silent != 0 -> "REJECT_SILENT"
                             provider != "Lub6;->e:Lub6;" -> "REJECT_PROVIDER"
-                            source != "Lfa6;->e:Lfa6;" -> "REJECT_SOURCE"
+                            source !in listOf("Lfa6;->e:Lfa6;", "Lfa6;->b:Lfa6;") -> "REJECT_SOURCE"
                             scope == null -> "REJECT_SCOPE_ABSENT"
                             scope.fields["c"] != null -> "REJECT_REAUTH"
                             else -> "MATCH_PREFERENCE_$preference"
@@ -186,10 +187,22 @@ class NativeResponseTraceTest {
                         assertEquals("ROUTE_$expected", output.last())
                         assertEquals("ROUTE_ENTRY", output.first())
                         assertEquals("ROUTE_PREFERENCE_$preference", output[1])
+                        val sourceCategory = routeTraceSources.entries.firstOrNull { source == "Lfa6;->${it.key}:Lfa6;" }?.value ?: "NONE"
+                        assertEquals("ROUTE_SOURCE_$sourceCategory", output[2])
                         assertEquals(4, output.size)
                         assertEquals(snapshot, arguments)
                         assertTrue(output.all { it in routeTraceMessages })
                     }
+    }
+
+    @Test fun `unrecognized source objects remain private and do not match the browser preference`() {
+        for (kind in routeTraceKinds) {
+            val unknown = Obj("Lfa6;", mapOf("private" to "private@example.test token URL"))
+            val output = run(kind, null, listOf("Lub6;->e:Lub6;", null, 0, Obj("Lyj40;", mapOf("c" to null)), unknown))
+            assertEquals("ROUTE_SOURCE_OTHER", output[2])
+            assertEquals("ROUTE_REJECT_SOURCE", output.last())
+            assertTrue(output.all { it in routeTraceMessages })
+        }
     }
 
     @Test fun `credential variants require exact allowlisted matches at both error locations`() {

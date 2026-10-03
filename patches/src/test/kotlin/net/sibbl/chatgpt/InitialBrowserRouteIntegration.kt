@@ -48,7 +48,7 @@ internal fun checkedBrowserBaseline(before: ClassDef, after: ClassDef): ClassDef
     assertEquals(Opcode.IF_EQZ, code[start + 5].opcode)
     assertEquals(4, (code[start + 5] as OneRegisterInstruction).registerA)
 
-    // Evaluate the actual re-encoded APK injection against the same 960-row matrix.
+    // Evaluate the actual re-encoded APK injection against the same 1320-row matrix.
     val fixture = compileTraceMethod("""
         .class public LRouteFixture;
         .super Ljava/lang/Object;
@@ -59,7 +59,7 @@ internal fun checkedBrowserBaseline(before: ClassDef, after: ClassDef): ClassDef
         return v4
         .end method
     """.trimIndent())
-    assertEquals(960, InitialBrowserRouteTest().matrix(code.subList(start, start + 5) + fixture.implementation!!.instructions.last(), helper))
+    assertEquals(1320, InitialBrowserRouteTest().matrix(code.subList(start, start + 5) + fixture.implementation!!.instructions.last(), helper))
 
     fun reachable(entry: Int, wanted: Int): Boolean {
         val seen = mutableSetOf<Int>(); val pending = ArrayDeque<Int>(); pending += entry

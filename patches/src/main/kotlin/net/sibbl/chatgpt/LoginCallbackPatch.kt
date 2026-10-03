@@ -56,7 +56,7 @@ val loginCallbackPatch = bytecodePatch(
     )
     val preferInitialBrowser = booleanOption(
         key = "preferInitialBrowser", default = false, title = "Prefer browser for initial email login (experimental)",
-        description = "Opt in to the existing complete web route from the initial generic welcome login. Keeps silent, social and reauthentication routes. Email/password acceptance and return to this clone remain unverified."
+        description = "Opt in to the existing complete web route from the initial generic welcome or modal login. Keeps silent, social and reauthentication routes. Email/password acceptance and return to this clone remain unverified."
     )
     execute {
         validateOriginalInput(packageMetadata.packageName, packageMetadata.versionName, packageMetadata.versionCode)

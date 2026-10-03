@@ -37,6 +37,7 @@ class InitialBrowserRouteTest {
             when (i.opcode) {
                 Opcode.IF_EQZ -> if (zero(regs[a])) jump()
                 Opcode.IF_NEZ -> if (!zero(regs[a])) jump()
+                Opcode.IF_EQ -> if (regs[a] == regs[b]) jump()
                 Opcode.IF_NE -> if (regs[a] != regs[b]) jump()
                 Opcode.CONST_4 -> regs[a] = (i as NarrowLiteralInstruction).narrowLiteral
                 Opcode.SGET_OBJECT -> regs[a] = ref.toString()
@@ -64,7 +65,9 @@ class InitialBrowserRouteTest {
     internal fun matrix(code: List<Instruction> = selection.implementation!!.instructions.toList(), predicate: Method = helper): Int {
         var rows = 0
         val providers = listOf("Lub6;->e:Lub6;", "Lvb6;->e:Lvb6;", "Lwb6;->e:Lwb6;", "Lcc6;->e:Lcc6;", null)
-        val sources = listOf("Lfa6;->e:Lfa6;", "Lfa6;->c:Lfa6;", "Lfa6;->d:Lfa6;", "Lfa6;->f:Lfa6;", "Lfa6;->g:Lfa6;", "Lfa6;->h:Lfa6;", "Lfa6;->i:Lfa6;", null)
+        val sources = listOf("Lfa6;->e:Lfa6;", "Lfa6;->b:Lfa6;", "Lfa6;->c:Lfa6;", "Lfa6;->d:Lfa6;",
+            "Lfa6;->f:Lfa6;", "Lfa6;->g:Lfa6;", "Lfa6;->h:Lfa6;", "Lfa6;->i:Lfa6;", "Lfa6;->j:Lfa6;", "unknown source", null)
+        val matchedSources = mutableMapOf<Any?, Int>()
         for (eligible in listOf(0, 1)) for (provider in providers) for (source in sources)
             for (silent in listOf(0, 1)) for (credential in listOf(null, Any()))
                 for (scope in listOf(null, Scope(null), Scope(Any()))) {
@@ -73,17 +76,19 @@ class InitialBrowserRouteTest {
                     regs[4] = eligible; regs[7] = scope; regs[33] = source
                     val snapshot = regs.clone()
                     val actual = evaluate(code, regs, predicate)
-                    val selected = provider == providers[0] && source == sources[0] && silent == 0 &&
+                    val selected = provider == providers[0] && source in listOf(sources[0], sources[1]) && silent == 0 &&
                         credential == null && scope != null && scope.binding == null
-                    assertEquals(if (selected) 0 else eligible, actual, "Route row $rows")
+                    assertEquals(if (selected) 0 else eligible, actual, "Route row $rows source $source")
+                    if (selected) matchedSources[source] = matchedSources.getOrDefault(source, 0) + 1
                     listOf(0, 1, 2, 7, 33).forEach { assertEquals(snapshot[it], regs[it], "Original argument changed") }
                     rows++
                 }
+        assertEquals(mapOf(sources[0] to 2, sources[1] to 2), matchedSources, "Both initial sources must positively select browser with all guards satisfied")
         return rows
     }
 
-    @Test fun `compiled branch matrix changes only generic interactive fresh welcome route`() {
-        assertEquals(960, matrix())
+    @Test fun `compiled branch matrix changes only generic interactive fresh welcome and modal routes`() {
+        assertEquals(1320, matrix())
     }
 
     @Test fun `browser preference is default off`() {

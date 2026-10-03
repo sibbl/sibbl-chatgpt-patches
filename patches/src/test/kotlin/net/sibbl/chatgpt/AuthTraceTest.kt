@@ -24,7 +24,9 @@ class AuthTraceTest {
                 "Ljm40;->c:Lue6;", "Ljm40;->b:Lim40;", "Lim40;->a:Lue6;",
                 "Lue6;->d:Ljava/util/List;", "Lre6;->a:Ljava/lang/String;",
                 "Lyj40;->c:Ljava/lang/String;", "Lub6;->e:Lub6;",
-                "Lfa6;->e:Lfa6;", "Lfa6;->c:Lfa6;", "Lfa6;->d:Lfa6;"
+                "Lfa6;->e:Lfa6;", "Lfa6;->c:Lfa6;", "Lfa6;->d:Lfa6;",
+                "Lfa6;->b:Lfa6;", "Lfa6;->f:Lfa6;", "Lfa6;->g:Lfa6;",
+                "Lfa6;->h:Lfa6;", "Lfa6;->i:Lfa6;", "Lfa6;->j:Lfa6;"
             )
             val permittedCalls = setOf(
                 "Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I",
