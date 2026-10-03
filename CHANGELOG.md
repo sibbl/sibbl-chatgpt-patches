@@ -1,3 +1,9 @@
+## [1.0.0-dev.8](https://github.com/sibbl/sibbl-chatgpt-patches/compare/v1.0.0-dev.7...v1.0.0-dev.8) (2026-10-03)
+
+### ✨ New Features
+
+* add default-off initial browser route candidate ([b9b2e1c](https://github.com/sibbl/sibbl-chatgpt-patches/commit/b9b2e1c09354381b67df178b62f7eff2a00226d3))
+
 ## [1.0.0-dev.7](https://github.com/sibbl/sibbl-chatgpt-patches/compare/v1.0.0-dev.6...v1.0.0-dev.7) (2026-10-02)
 
 ### 🐛 Bug Fixes
