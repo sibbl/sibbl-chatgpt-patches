@@ -44,7 +44,7 @@ Im Callback-Patch gibt es **Diagnostic auth tracing (no secrets)**, standardmä�
 Der optionale Patch **Clone ChatGPT (experimental baseline)** allein dient nur dem Vergleich und enthält den Callback-Fix nicht.
 
 <!-- PATCHES_START -->
-> **[v1.0.0-dev.9](https://github.com/sibbl/sibbl-chatgpt-patches/releases/tag/v1.0.0-dev.9)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
+> **[v1.0.0-dev.10](https://github.com/sibbl/sibbl-chatgpt-patches/releases/tag/v1.0.0-dev.10)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
 <details open>
 <summary>📦 ChatGPT&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>

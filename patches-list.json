@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0-dev.9",
+  "version": "1.0.0-dev.10",
   "patches": [
     {
       "name": "Clone ChatGPT (experimental baseline)",
@@ -116,7 +116,7 @@
         {
           "key": "preferInitialBrowser",
           "title": "Prefer browser for initial email login (experimental)",
-          "description": "Opt in to the existing complete web route from the initial generic welcome login. Keeps silent, social and reauthentication routes. Email/password acceptance and return to this clone remain unverified.",
+          "description": "Opt in to the existing complete web route from the initial generic welcome or modal login. Keeps silent, social and reauthentication routes. Email/password acceptance and return to this clone remain unverified.",
           "required": false,
           "type": "kotlin.Boolean",
           "default": false,

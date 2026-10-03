@@ -1,3 +1,9 @@
+## [1.0.0-dev.10](https://github.com/sibbl/sibbl-chatgpt-patches/compare/v1.0.0-dev.9...v1.0.0-dev.10) (2026-10-03)
+
+### 🐛 Bug Fixes
+
+* prefer initial browser route for modal login ([85c8e2b](https://github.com/sibbl/sibbl-chatgpt-patches/commit/85c8e2b64f4fa0f5af117509af2eb81f59b714cb))
+
 ## [1.0.0-dev.9](https://github.com/sibbl/sibbl-chatgpt-patches/compare/v1.0.0-dev.8...v1.0.0-dev.9) (2026-10-03)
 
 ### 🐛 Bug Fixes
