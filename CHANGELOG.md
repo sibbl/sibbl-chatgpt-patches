@@ -1,3 +1,9 @@
+## [1.0.0-dev.9](https://github.com/sibbl/sibbl-chatgpt-patches/compare/v1.0.0-dev.8...v1.0.0-dev.9) (2026-10-03)
+
+### 🐛 Bug Fixes
+
+* distinguish native credential and MFA diagnostics ([892fc58](https://github.com/sibbl/sibbl-chatgpt-patches/commit/892fc5828d9a4c5ae7607793cb46029bff16bc86))
+
 ## [1.0.0-dev.8](https://github.com/sibbl/sibbl-chatgpt-patches/compare/v1.0.0-dev.7...v1.0.0-dev.8) (2026-10-03)
 
 ### ✨ New Features
