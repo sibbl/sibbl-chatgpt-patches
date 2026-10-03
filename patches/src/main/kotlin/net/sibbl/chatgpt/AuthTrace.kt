@@ -29,6 +29,8 @@ internal const val NATIVE_REPOSITORY = "Lcom/openai/feature/onboarding/impl/next
 
 /** Hashes of canonical classes, not APK code. Fail closed on any changed injection target. */
 internal val traceFingerprints = mapOf(
+    "Luw60;" to "4bd34a83f19af7885e4200950ac85fe0a06cd64af94f32de9353eb3a5c4870a2",
+    "Ldf6;" to "936136b7503b10773a61fc665c41ddab057e20931f50ee991af189c8d3141a17",
     "Ld580;" to "115dd7fabc5a4a4b02638c0cb8081a9ea110147db9e257b37bae89dbead29605",
     "Lnnq0;" to "121a49b0fafeb9034c0d3fd1759e318d1f47210c5d2e2bcd239a56c0844d2c02",
     "Ligy;" to "455715af9527a0793ad0de9f987fd432173ef2263d4f373026ace586a5ec29bd",
@@ -75,9 +77,9 @@ internal val traceStages = setOf("NATIVE_BEGIN", "NATIVE_STEP", "BROWSER_RESULT"
 internal val traceFixedEvents = setOf(
     "NATIVE_HTTP_DISPATCH", "NATIVE_PASSWORD_SUBMIT", "NATIVE_BEGIN_ENTER", "NATIVE_STEP_ENTER", "BROWSER_DISPATCH_ENTER",
     "CALLBACK_RECEIVED", "CALLBACK_URI_MISMATCH", "CALLBACK_STATE_MISMATCH", "CALLBACK_REMOTE_ERROR",
-    "CALLBACK_CODE_PRESENT", "TOKEN_EXCHANGE_ENTER", "PAGE_PASSWORD", "PAGE_ERROR", "PAGE_OTHER"
+    "CALLBACK_CODE_PRESENT", "TOKEN_EXCHANGE_ENTER", "PAGE_PASSWORD", "PAGE_ERROR", "PAGE_MFA", "PAGE_OTHER"
 )
-internal val traceAllowedMessages = nativeTraceMessages + traceFixedEvents + traceStages.flatMap { stage ->
+internal val traceAllowedMessages = routeTraceMessages + nativeTraceMessages + traceFixedEvents + traceStages.flatMap { stage ->
     (listOf("OK", "FAILURE", "HTTP_OTHER") + traceErrorTypes.values + traceStatusCodes.map { "HTTP_$it" })
         .map { "${stage}_$it" }
 }
@@ -91,6 +93,7 @@ internal fun logConstant(message: String): String {
 internal fun traceHelperSmali(owner: String, name: String, kind: String): String {
     val objectArgument = kind == "PAGE" || kind in traceStages || kind in nativeTraceKinds
     val body = when {
+        kind in routeTraceKinds -> routeTraceBody(kind)
         kind in nativeTraceKinds -> nativeTraceBody(kind)
         kind == "PAGE" -> """
             instance-of v2, p0, Ljm40;
@@ -103,6 +106,11 @@ internal fun traceHelperSmali(owner: String, name: String, kind: String): String
             ${logConstant("PAGE_ERROR")}
             goto :done
             :page_other
+            instance-of v2, p0, Luw60;
+            if-eqz v2, :page_unknown
+            ${logConstant("PAGE_MFA")}
+            goto :done
+            :page_unknown
             ${logConstant("PAGE_OTHER")}
         """
         kind in traceFixedEvents -> logConstant(kind)
@@ -168,8 +176,8 @@ internal fun traceHelperSmali(owner: String, name: String, kind: String): String
     return """
         .class public $owner
         .super Ljava/lang/Object;
-        .method public static $TRACE_PREFIX$name(${if (objectArgument) "Ljava/lang/Object;" else ""})V
-        .registers ${if (kind in nativeTraceKinds) 10 else if (objectArgument) 5 else 4}
+        .method public static $TRACE_PREFIX$name(${if (kind in routeTraceKinds) ROUTE_TRACE_PARAMETERS else if (objectArgument) "Ljava/lang/Object;" else ""})V
+        .registers ${if (kind in nativeTraceKinds || kind in routeTraceKinds) 10 else if (objectArgument) 5 else 4}
         :trace_start
         const-string v0, "$TRACE_TAG"
         $body

@@ -12,7 +12,7 @@ class AuthTraceTest {
     }
 
     @Test fun `every compiled logger accepts only constant allowlisted output and catches its failures`() {
-        val kinds = traceFixedEvents + traceStages + nativeTraceKinds + "PAGE"
+        val kinds = traceFixedEvents + traceStages + nativeTraceKinds + routeTraceKinds + "PAGE"
         kinds.forEach { kind ->
             val method = compileTraceHelper("LFixture;", kind, kind)
             val impl = method.implementation!!
@@ -22,7 +22,9 @@ class AuthTraceTest {
                 "Lmnq0;->c:Ljava/lang/Integer;", "Lc580;->b:I", "Lnhy;->a:I", "Ld580;->a:Ljava/lang/Object;", "Lnnq0;->b:Ljava/lang/Object;",
                 "Li6u;->c:Lue6;", "Li6u;->b:Lh6u;", "Lh6u;->d:Lue6;",
                 "Ljm40;->c:Lue6;", "Ljm40;->b:Lim40;", "Lim40;->a:Lue6;",
-                "Lue6;->d:Ljava/util/List;", "Lre6;->a:Ljava/lang/String;"
+                "Lue6;->d:Ljava/util/List;", "Lre6;->a:Ljava/lang/String;",
+                "Lyj40;->c:Ljava/lang/String;", "Lub6;->e:Lub6;",
+                "Lfa6;->e:Lfa6;", "Lfa6;->c:Lfa6;", "Lfa6;->d:Lfa6;"
             )
             val permittedCalls = setOf(
                 "Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I",

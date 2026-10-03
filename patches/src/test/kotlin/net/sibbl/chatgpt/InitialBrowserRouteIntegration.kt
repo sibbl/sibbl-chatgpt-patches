@@ -102,8 +102,8 @@ internal fun checkedBrowserBaseline(before: ClassDef, after: ClassDef): ClassDef
     // The Morphe proxy changes canonical representation even for an untouched copy.
     // Validate every actual body first, then hash actual metadata with original verified bodies.
     val originals = before.methods.associateBy { it.toString() }
-    assertEquals(originals.keys, cls.methods.map { it.toString() }.toSet())
-    val verifiedMethods = cls.methods.map { actual ->
+    assertEquals(originals.keys, cls.methods.filterNot { it.name.startsWith(TRACE_PREFIX) }.map { it.toString() }.toSet())
+    val verifiedMethods = cls.methods.filterNot { it.name.startsWith(TRACE_PREFIX) }.map { actual ->
         val original = originals.getValue(actual.toString())
         assertEquals(original.implementation?.registerCount, actual.implementation?.registerCount)
         assertTrue(normalized(original) == normalized(actual), "Unexpected original body/catch change: ${actual.name}")
@@ -113,5 +113,5 @@ internal fun checkedBrowserBaseline(before: ClassDef, after: ClassDef): ClassDef
     val baseline = ImmutableClassDef(cls.type, cls.accessFlags, cls.superclass, cls.interfaces,
         cls.sourceFile, cls.annotations, cls.fields, verifiedMethods)
     assertEquals(browserFingerprints.getValue(BROWSER_OWNER), traceClassHash(baseline), "Original class/method metadata must be retained")
-    return baseline
+    return if (cls.methods.any { it.name.startsWith(TRACE_PREFIX) }) cls else baseline
 }

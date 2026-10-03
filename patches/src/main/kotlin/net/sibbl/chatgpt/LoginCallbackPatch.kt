@@ -60,8 +60,15 @@ val loginCallbackPatch = bytecodePatch(
     )
     execute {
         validateOriginalInput(packageMetadata.packageName, packageMetadata.versionName, packageMetadata.versionCode)
+        // Validate the untouched selector before either optional injection.
+        if (authTrace.value == true) browserFingerprints.forEach { (type, hash) ->
+            require(traceClassHash(classDefBy(type)) == hash) { "Route diagnostic fingerprint changed: $type." }
+        }
         if (preferInitialBrowser.value == true) installInitialBrowserRoute()
-        if (authTrace.value == true) installAuthTrace()
+        if (authTrace.value == true) {
+            installAuthTrace()
+            installRouteSelectionTrace(preferInitialBrowser.value == true)
+        }
         val method = mutableClassDefBy("Li280;").methods.single {
             it.name == "invoke" && it.parameterTypes.isEmpty() && it.returnType == "Ljava/lang/Object;"
         }

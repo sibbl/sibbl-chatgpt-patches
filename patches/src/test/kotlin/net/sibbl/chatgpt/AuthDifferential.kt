@@ -28,6 +28,9 @@ internal val authComparisonTypes = setOf(
     "Lrd6;", "Lh8o;", "Lpb6;", "Lnb6;", "Lpm40;", "Lnm40;", "Lgf80;",
     "Lrj40;", "Luj40;", "Lyj40;", "Lw780;", "Ltt1;", "Lib80;",
     "Lk56;", "Lln8;", "Lnit;", "Law;", "Le280;", "Lbi40;", "Lnw4;",
+    // Native proof provider, AndroidKeyStore key generation and ES256 serialization/signing.
+    "Layg;", "Lpt1;", "Lj8p;", "Li8p;", "Lg8p;", "Lh8p;", "Lxp1;", "Lyp1;", "Lfs1;",
+    "Lzzx0;", "La8p;", "Ld8p;", "Lb8p;", "Ly7p;", "Ls4t;", "Lqf6;", "Ldf6;", "Luw60;",
     // Browser entry/result contracts: retain the ordinary callers and their continuations.
     "Lcom/openai/feature/onboarding/impl/next/viewmodel/b;", "Lpj7;", "Lrh80;", "Lt5j;",
     "Lte80;", "Lre80;", "Llk1;", "Lpd80;", "Lif80;", "Ldf80;", "Lef80;",

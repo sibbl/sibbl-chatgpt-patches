@@ -10,13 +10,14 @@ import java.io.File
 /** Execute the actual generated DEX branches against synthetic objects; no APK code or network. */
 class NativeResponseTraceTest {
     private data class Obj(val type: String, val fields: Map<String, Any?> = emptyMap())
-    private fun run(kind: String, input: Any?): List<String> {
+    private fun run(kind: String, input: Any?, arguments: List<Any?>? = null): List<String> {
         val impl = compileTraceHelper("LFixture;", kind, kind).implementation!!
         val code = impl.instructions.toList()
         val addresses = mutableListOf<Int>(); var address = 0
         code.forEach { addresses += address; address += it.codeUnits }
         val regs = arrayOfNulls<Any?>(impl.registerCount)
-        regs[regs.lastIndex] = input
+        if (arguments == null) regs[regs.lastIndex] = input
+        else arguments.forEachIndexed { index, value -> regs[regs.size - arguments.size + index] = value }
         val result = mutableListOf<String>(); var returned: Any? = null; var pc = 0; var steps = 0
         fun field(obj: Any?, name: String) = (obj as Obj).fields[name]
         while (true) {
@@ -34,6 +35,7 @@ class NativeResponseTraceTest {
                     Opcode.MOVE_OBJECT -> regs[a] = regs[b]
                     Opcode.INSTANCE_OF -> regs[a] = if ((regs[b] as? Obj)?.type == ref.toString()) 1 else 0
                     Opcode.CHECK_CAST -> check((regs[a] as? Obj)?.type == ref.toString() || regs[a] == null)
+                    Opcode.SGET_OBJECT -> regs[a] = ref.toString()
                     Opcode.IGET, Opcode.IGET_OBJECT -> regs[a] = field(regs[b], (ref as FieldReference).name)
                     Opcode.MOVE_RESULT, Opcode.MOVE_RESULT_OBJECT -> regs[a] = returned
                     Opcode.IF_EQZ -> if (zero(regs[a])) jump()
@@ -58,7 +60,12 @@ class NativeResponseTraceTest {
                             else -> error("Unexpected invocation")
                         }
                     }
-                    Opcode.RETURN_VOID -> return result
+                    Opcode.RETURN_VOID -> {
+                        arguments?.forEachIndexed { index, value ->
+                            assertEquals(value, regs[regs.size - arguments.size + index], "Diagnostic changed an argument")
+                        }
+                        return result
+                    }
                     Opcode.MOVE_EXCEPTION -> regs[a] = RuntimeException("synthetic")
                     else -> error("Unsupported fixture opcode ${i.opcode}")
                 }
@@ -91,7 +98,9 @@ class NativeResponseTraceTest {
         nativePageStages.forEach { stage ->
             nativeCodeCategories.forEach { (code, category) ->
                 val output = run(stage, wrapped(stage, page(true, errors(listOf(code)), null)))
-                assertEquals(listOf("${stage}_PAGE_ERROR", "${stage}_NESTED_PRESENT", "${stage}_NESTED_CODE_$category", "${stage}_TOP_ABSENT"), output)
+                assertEquals(listOf("${stage}_PAGE_ERROR", "${stage}_NESTED_PRESENT", "${stage}_NESTED_CODE_$category") +
+                    listOfNotNull(nativeCredentialVariants[code]?.let { "${stage}_NESTED_CREDENTIAL_VARIANT_$it" }) +
+                    "${stage}_TOP_ABSENT", output)
             }
             val output = run(stage, wrapped(stage, page(false, errors(listOf("private@example.test secret URL token", null)), errors(listOf("invalid_request")))))
             assertEquals(listOf("${stage}_PAGE_PASSWORD", "${stage}_NESTED_PRESENT", "${stage}_NESTED_CODE_OTHER", "${stage}_NESTED_CODE_NONE", "${stage}_TOP_PRESENT", "${stage}_TOP_CODE_REQUEST"), output)
@@ -145,6 +154,59 @@ class NativeResponseTraceTest {
         assertEquals((original[returnIndex] as OneRegisterInstruction).registerA,
             (instructions[target + 1] as OneRegisterInstruction).registerA)
         assertEquals(3, method.implementation!!.registerCount)
+    }
+
+
+    @Test fun `MFA response and rendered page are distinct without reading challenge fields`() {
+        nativePageStages.forEach { stage ->
+            assertEquals(listOf("${stage}_PAGE_MFA"), run(stage, wrapped(stage, Obj("Luw60;"))))
+        }
+        assertEquals(listOf("PAGE_MFA"), run("PAGE", Obj("Luw60;")))
+        assertEquals(listOf("PAGE_OTHER"), run("PAGE", Obj("LOther;")))
+    }
+
+    @Test fun `route guards use enums only and preserve every argument across both preferences`() {
+        for (kind in routeTraceKinds) for (provider in listOf("Lub6;->e:Lub6;", "Lvb6;->e:Lvb6;", null))
+            for (source in listOf("Lfa6;->e:Lfa6;", "Lfa6;->c:Lfa6;", "Lfa6;->d:Lfa6;", "Lfa6;->f:Lfa6;", null))
+                for (credential in listOf(null, Obj("Lxgx;"))) for (silent in listOf(0, 1))
+                    for (scope in listOf(null, Obj("Lyj40;", mapOf("c" to null)), Obj("Lyj40;", mapOf("c" to "private binding")))) {
+                        val arguments = listOf(provider, credential, silent, scope, source)
+                        val snapshot = arguments.toList()
+                        val output = run(kind, null, arguments)
+                        val preference = if (kind.endsWith("_ON")) "ON" else "OFF"
+                        val expected = when {
+                            credential != null -> "REJECT_CREDENTIAL"
+                            silent != 0 -> "REJECT_SILENT"
+                            provider != "Lub6;->e:Lub6;" -> "REJECT_PROVIDER"
+                            source != "Lfa6;->e:Lfa6;" -> "REJECT_SOURCE"
+                            scope == null -> "REJECT_SCOPE_ABSENT"
+                            scope.fields["c"] != null -> "REJECT_REAUTH"
+                            else -> "MATCH_PREFERENCE_$preference"
+                        }
+                        assertEquals("ROUTE_$expected", output.last())
+                        assertEquals("ROUTE_ENTRY", output.first())
+                        assertEquals("ROUTE_PREFERENCE_$preference", output[1])
+                        assertEquals(4, output.size)
+                        assertEquals(snapshot, arguments)
+                        assertTrue(output.all { it in routeTraceMessages })
+                    }
+    }
+
+    @Test fun `credential variants require exact allowlisted matches at both error locations`() {
+        for (stage in nativePageStages) {
+            for ((code, variant) in nativeCredentialVariants) {
+                val output = run(stage, wrapped(stage, page(false, errors(listOf(code)), errors(listOf(code)))))
+                assertTrue("${stage}_NESTED_CREDENTIAL_VARIANT_$variant" in output)
+                assertTrue("${stage}_TOP_CREDENTIAL_VARIANT_$variant" in output)
+            }
+            val negative = nativeCredentialVariants.keys.flatMap { listOf(it.uppercase(), "$it secret", " $it", "$it\n") } +
+                listOf("private@example.test", "https://private.test/token", "arbitrary server prose")
+            negative.forEach { unknown ->
+                val output = run(stage, wrapped(stage, page(false, errors(listOf(unknown)), errors(listOf(unknown)))))
+                assertFalse(output.any { "CREDENTIAL_VARIANT" in it || it.endsWith("CODE_CREDENTIALS") })
+                assertTrue(output.all { it in nativeTraceMessages })
+            }
+        }
     }
 
     @Test fun `published collector allowlist exactly matches compiled diagnostic vocabulary`() {

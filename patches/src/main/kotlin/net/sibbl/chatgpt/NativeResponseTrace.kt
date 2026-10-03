@@ -14,13 +14,18 @@ internal val nativeCodeCategories = linkedMapOf(
     "rate_limit_exceeded" to "RATE_LIMIT", "too_many_attempts" to "RATE_LIMIT",
     "access_denied" to "ACCESS_DENIED"
 )
+internal val nativeCredentialVariants = linkedMapOf(
+    "invalid_credentials" to "INVALID_CREDENTIALS", "invalid_password" to "INVALID_PASSWORD",
+    "incorrect_password" to "INCORRECT_PASSWORD", "wrong_email_or_password" to "WRONG_EMAIL_OR_PASSWORD",
+    "invalid_username_or_password" to "INVALID_USERNAME_OR_PASSWORD"
+)
 internal val nativePageStages = listOf("NATIVE_BEFORE_MAP", "NATIVE_AFTER_MAP")
 internal val nativeTraceMessages = (nativeHttpStatuses.map { "NATIVE_RAW_HTTP_$it" } + "NATIVE_RAW_HTTP_OTHER" +
     nativePageStages.flatMap { stage ->
-        listOf("PAGE_ERROR", "PAGE_PASSWORD", "PAGE_OTHER").map { "${stage}_$it" } +
+        listOf("PAGE_ERROR", "PAGE_PASSWORD", "PAGE_MFA", "PAGE_OTHER").map { "${stage}_$it" } +
             listOf("TOP", "NESTED").flatMap { location ->
                 (listOf("ABSENT", "PRESENT", "METADATA_EMPTY", "METADATA_TRUNCATED", "CODE_NONE", "CODE_OTHER") +
-                    nativeCodeCategories.values.map { "CODE_$it" }).map { "${stage}_${location}_$it" }
+                    nativeCodeCategories.values.map { "CODE_$it" } + nativeCredentialVariants.values.map { "CREDENTIAL_VARIANT_$it" }).map { "${stage}_${location}_$it" }
             }
     }).toSet()
 
@@ -73,6 +78,11 @@ internal fun nativeTraceBody(kind: String): String = when (kind) {
             iget-object v3, v3, Lim40;->a:Lue6;
             goto :errors
             :other_page
+            instance-of v2, v3, Luw60;
+            if-eqz v2, :unknown_page
+            ${logConstant("${kind}_PAGE_MFA")}
+            goto/16 :done
+            :unknown_page
             ${logConstant("${kind}_PAGE_OTHER")}
             goto/16 :done
             :no_nested
@@ -124,6 +134,7 @@ private fun metadataBody(stage: String, location: String): String = buildString 
             move-result v2
             if-eqz v2, :${label("code_$index")}
             ${logConstant("${prefix}_CODE_$category")}
+            ${nativeCredentialVariants[code]?.let { logConstant("${prefix}_CREDENTIAL_VARIANT_$it") } ?: ""}
             goto/16 :${label("advance")}
             :${label("code_$index")}
         """)
